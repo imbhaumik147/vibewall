@@ -1,22 +1,18 @@
 """
 Django settings for vibewall_project.
-
-Generated for VibeWall - Universal Aesthetic Collage & Wallpaper Creator.
 """
 
-import os
 from pathlib import Path
+import os
+import shutil
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY',
-    'django-insecure-vibewall-k9#x1%0-!y(q=l3b5f9@+p8r8m_9_v%^w0*2!d-4'
-)
+# Quick-start development settings - unsuitable for production
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-vibewall-production-aesthetic-wallpaper-generator-2026-key-!#$')
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Set DEBUG to False in production
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = ['*']
@@ -49,7 +45,9 @@ ROOT_URLCONF = 'vibewall_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,17 +62,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'vibewall_project.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# Database Configuration (Serverless Writable /tmp Support for Vercel/AWS Lambda)
+IS_VERCEL = 'VERCEL' in os.environ or 'AWS_LAMBDA_FUNCTION_NAME' in os.environ
+
+if IS_VERCEL:
+    DB_DIR = Path('/tmp')
+    DB_PATH = DB_DIR / 'db.sqlite3'
+    # Copy template db if exists and not present in /tmp
+    src_db = BASE_DIR / 'db.sqlite3'
+    if src_db.exists() and not DB_PATH.exists():
+        try:
+            shutil.copy2(src_db, DB_PATH)
+        except Exception:
+            pass
+else:
+    DB_PATH = BASE_DIR / 'db.sqlite3'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DB_PATH,
     }
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -106,9 +117,12 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # WhiteNoise storage configuration
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files (User uploads, exported project thumbnails)
+# Media files
+if IS_VERCEL:
+    MEDIA_ROOT = Path('/tmp/media')
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

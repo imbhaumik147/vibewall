@@ -93,25 +93,42 @@ GITHUB_REPO_URL = "https://github.com/imbhaumik147/vibewall"
 GITHUB_PROFILE_URL = "https://github.com/imbhaumik147"
 
 
+def _get_devices_and_layouts():
+    """Helper to safely fetch devices and layouts from DB with fallback."""
+    devices = DEFAULT_DEVICES
+    layouts = DEFAULT_LAYOUTS
+
+    try:
+        db_devices = list(DevicePreset.objects.all())
+        if db_devices:
+            devices = [
+                {"id": d.slug, "name": d.name, "width": d.width, "height": d.height, "category": d.category}
+                for d in db_devices
+            ]
+    except Exception:
+        pass
+
+    try:
+        db_layouts = list(LayoutPreset.objects.all())
+        if db_layouts:
+            layouts = [
+                {
+                    "id": l.slug, "name": l.name, "cols": l.cols, "rows": l.rows,
+                    "gap": l.gap, "padding": l.padding, "radius": l.radius,
+                    "bgColor": l.bg_color, "heroRatio": l.hero_ratio,
+                    "description": l.description, "tag": l.tag, "is_popular": l.is_popular
+                }
+                for l in db_layouts
+            ]
+    except Exception:
+        pass
+
+    return devices, layouts
+
+
 def home_view(request):
     """Render the landing page with interactive setup wizard and curated templates."""
-    db_devices = list(DevicePreset.objects.all())
-    db_layouts = list(LayoutPreset.objects.all())
-
-    devices = [
-        {"id": d.slug, "name": d.name, "width": d.width, "height": d.height, "category": d.category}
-        for d in db_devices
-    ] if db_devices else DEFAULT_DEVICES
-
-    layouts = [
-        {
-            "id": l.slug, "name": l.name, "cols": l.cols, "rows": l.rows,
-            "gap": l.gap, "padding": l.padding, "radius": l.radius,
-            "bgColor": l.bg_color, "heroRatio": l.hero_ratio,
-            "description": l.description, "tag": l.tag, "is_popular": l.is_popular
-        }
-        for l in db_layouts
-    ] if db_layouts else DEFAULT_LAYOUTS
+    devices, layouts = _get_devices_and_layouts()
 
     context = {
         'devices': devices,
@@ -128,23 +145,7 @@ def studio_view(request):
     preset_slug = request.GET.get('preset', 'pinterest-dark-mosaic')
     device_slug = request.GET.get('device', 'iphone-15-pro-max')
 
-    db_devices = list(DevicePreset.objects.all())
-    db_layouts = list(LayoutPreset.objects.all())
-
-    devices = [
-        {"id": d.slug, "name": d.name, "width": d.width, "height": d.height, "category": d.category}
-        for d in db_devices
-    ] if db_devices else DEFAULT_DEVICES
-
-    layouts = [
-        {
-            "id": l.slug, "name": l.name, "cols": l.cols, "rows": l.rows,
-            "gap": l.gap, "padding": l.padding, "radius": l.radius,
-            "bgColor": l.bg_color, "heroRatio": l.hero_ratio,
-            "description": l.description, "tag": l.tag, "is_popular": l.is_popular
-        }
-        for l in db_layouts
-    ] if db_layouts else DEFAULT_LAYOUTS
+    devices, layouts = _get_devices_and_layouts()
 
     context = {
         'initial_preset': preset_slug,
@@ -174,24 +175,7 @@ def about_view(request):
 
 def api_presets(request):
     """Return JSON payload of all registered devices and layout templates."""
-    db_devices = list(DevicePreset.objects.all())
-    db_layouts = list(LayoutPreset.objects.all())
-
-    devices = [
-        {"id": d.slug, "name": d.name, "width": d.width, "height": d.height, "category": d.category}
-        for d in db_devices
-    ] if db_devices else DEFAULT_DEVICES
-
-    layouts = [
-        {
-            "id": l.slug, "name": l.name, "cols": l.cols, "rows": l.rows,
-            "gap": l.gap, "padding": l.padding, "radius": l.radius,
-            "bgColor": l.bg_color, "heroRatio": l.hero_ratio,
-            "description": l.description, "tag": l.tag, "is_popular": l.is_popular
-        }
-        for l in db_layouts
-    ] if db_layouts else DEFAULT_LAYOUTS
-
+    devices, layouts = _get_devices_and_layouts()
     return JsonResponse({
         'status': 'success',
         'devices': devices,
@@ -201,17 +185,20 @@ def api_presets(request):
 
 def api_starter_images(request):
     """Return list of curated aesthetic images."""
-    assets = AestheticAsset.objects.all()
-    if assets.exists():
-        data = [{'title': a.title, 'category': a.category, 'url': a.url} for a in assets]
-    else:
-        # Fallback starter images
-        data = [
-            {"title": "Film Aesthetic 1", "category": "cinema", "url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80"},
-            {"title": "Film Aesthetic 2", "category": "cinema", "url": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80"},
-            {"title": "Film Aesthetic 3", "category": "nature", "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80"},
-            {"title": "Film Aesthetic 4", "category": "neon", "url": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&auto=format&fit=crop&q=80"},
-        ]
+    data = [
+        {"title": "Film Aesthetic 1", "category": "cinema", "url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80"},
+        {"title": "Film Aesthetic 2", "category": "cinema", "url": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80"},
+        {"title": "Film Aesthetic 3", "category": "nature", "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80"},
+        {"title": "Film Aesthetic 4", "category": "neon", "url": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&auto=format&fit=crop&q=80"},
+    ]
+
+    try:
+        assets = AestheticAsset.objects.all()
+        if assets.exists():
+            data = [{'title': a.title, 'category': a.category, 'url': a.url} for a in assets]
+    except Exception:
+        pass
+
     return JsonResponse({'status': 'success', 'images': data})
 
 
@@ -243,31 +230,39 @@ def api_save_project(request):
 
 def api_list_projects(request):
     """Return all saved projects."""
-    projects = WallpaperProject.objects.all()[:50]
-    data = [
-        {
-            'id': p.id,
-            'title': p.title,
-            'resolution': p.resolution_display,
-            'created_at': p.created_at.strftime('%Y-%m-%d %H:%M'),
-            'updated_at': p.updated_at.strftime('%Y-%m-%d %H:%M'),
-        }
-        for p in projects
-    ]
+    data = []
+    try:
+        projects = WallpaperProject.objects.all()[:50]
+        data = [
+            {
+                'id': p.id,
+                'title': p.title,
+                'resolution': p.resolution_display,
+                'created_at': p.created_at.strftime('%Y-%m-%d %H:%M'),
+                'updated_at': p.updated_at.strftime('%Y-%m-%d %H:%M'),
+            }
+            for p in projects
+        ]
+    except Exception:
+        pass
+
     return JsonResponse({'status': 'success', 'projects': data})
 
 
 def api_get_project(request, project_id):
     """Return single project configuration."""
-    project = get_object_or_404(WallpaperProject, pk=project_id)
-    return JsonResponse({
-        'status': 'success',
-        'project': {
-            'id': project.id,
-            'title': project.title,
-            'resolution': project.resolution_display,
-            'configuration': project.configuration_json,
-            'created_at': project.created_at.strftime('%Y-%m-%d %H:%M'),
-            'updated_at': project.updated_at.strftime('%Y-%m-%d %H:%M'),
-        }
-    })
+    try:
+        project = get_object_or_404(WallpaperProject, pk=project_id)
+        return JsonResponse({
+            'status': 'success',
+            'project': {
+                'id': project.id,
+                'title': project.title,
+                'resolution': project.resolution_display,
+                'configuration': project.configuration_json,
+                'created_at': project.created_at.strftime('%Y-%m-%d %H:%M'),
+                'updated_at': project.updated_at.strftime('%Y-%m-%d %H:%M'),
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
