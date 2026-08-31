@@ -107,7 +107,9 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise storage configuration
+# WhiteNoise configuration to search directly in STATICFILES_DIRS
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Media files
