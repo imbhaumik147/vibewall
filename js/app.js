@@ -1819,69 +1819,81 @@ class WallpaperApp {
   }
 
   // --- High-Resolution Canvas Exporter & Vector Clip Paths ---
+  // All polygon points exactly match the CSS clip-path polygons in style.css
   drawShapePath(ctx, shape, x, y, w, h, radius) {
     ctx.beginPath();
+
+    // Helper to plot a % polygon point list onto the canvas tile rect
+    const poly = (pts) => {
+      pts.forEach(([px, py], i) => {
+        const cx = x + px * w;
+        const cy = y + py * h;
+        if (i === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+      });
+    };
+
     switch (shape) {
+      // Circle — matches: clip-path: circle(50% at 50% 50%)
       case 'circle':
         ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, 2 * Math.PI);
         break;
-      case 'heart':
-        const topH = h * 0.32;
-        ctx.moveTo(x + w / 2, y + h * 0.95);
-        ctx.bezierCurveTo(x + w * 0.05, y + h * 0.65, x, y + topH, x + w * 0.25, y + h * 0.05);
-        ctx.bezierCurveTo(x + w * 0.45, y + h * 0.05, x + w / 2, y + topH * 0.7, x + w / 2, y + topH);
-        ctx.bezierCurveTo(x + w / 2, y + topH * 0.7, x + w * 0.55, y + h * 0.05, x + w * 0.75, y + h * 0.05);
-        ctx.bezierCurveTo(x + w, y + topH, x + w * 0.95, y + h * 0.65, x + w / 2, y + h * 0.95);
-        break;
-      case 'unicorn':
-        UNICORN_POINTS.forEach((pt, i) => {
-          const px = x + pt[0] * w;
-          const py = y + pt[1] * h;
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        });
-        break;
-      case 'star':
-        const cx = x + w / 2, cy = y + h / 2;
-        const outerR = Math.min(w, h) / 2;
-        const innerR = outerR * 0.42;
-        for (let i = 0; i < 10; i++) {
-          const r = (i % 2 === 0) ? outerR : innerR;
-          const angle = (i * Math.PI) / 5 - Math.PI / 2;
-          const px = cx + r * Math.cos(angle);
-          const py = cy + r * Math.sin(angle);
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        }
-        break;
+
+      // Diamond — matches: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)
       case 'diamond':
-        ctx.moveTo(x + w / 2, y);
-        ctx.lineTo(x + w, y + h / 2);
-        ctx.lineTo(x + w / 2, y + h);
-        ctx.lineTo(x, y + h / 2);
+        poly([[0.50, 0], [1, 0.50], [0.50, 1], [0, 0.50]]);
         break;
+
+      // Hexagon — matches: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)
       case 'hexagon':
-        ctx.moveTo(x + w * 0.25, y);
-        ctx.lineTo(x + w * 0.75, y);
-        ctx.lineTo(x + w, y + h * 0.5);
-        ctx.lineTo(x + w * 0.75, y + h);
-        ctx.lineTo(x + w * 0.25, y + h);
-        ctx.lineTo(x, y + h * 0.5);
+        poly([[0.25, 0], [0.75, 0], [1, 0.50], [0.75, 1], [0.25, 1], [0, 0.50]]);
         break;
+
+      // Star — matches: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)
+      case 'star':
+        poly([
+          [0.50, 0], [0.61, 0.35], [0.98, 0.35], [0.68, 0.57], [0.79, 0.91],
+          [0.50, 0.70], [0.21, 0.91], [0.32, 0.57], [0.02, 0.35], [0.39, 0.35]
+        ]);
+        break;
+
+      // Unicorn — matches CSS polygon exactly from UNICORN_POINTS in grid.js
+      case 'unicorn':
+        poly([
+          [0.85, 0.05], [0.58, 0.20], [0.48, 0.12], [0.40, 0.20], [0.28, 0.28],
+          [0.20, 0.42], [0.15, 0.60], [0.12, 0.82], [0.15, 0.95], [0.38, 0.95],
+          [0.55, 0.88], [0.60, 0.74], [0.68, 0.64], [0.84, 0.54], [0.88, 0.46],
+          [0.85, 0.38], [0.72, 0.32], [0.65, 0.22]
+        ]);
+        break;
+
+      // Heart — matches: polygon(50% 88%, 35% 72%, 20% 55%, 10% 40%, 8% 28%, 10% 16%, 18% 7%, 30% 5%, 42% 10%, 50% 22%, 58% 10%, 70% 5%, 82% 7%, 90% 16%, 92% 28%, 90% 40%, 80% 55%, 65% 72%)
+      case 'heart':
+        poly([
+          [0.50, 0.88], [0.35, 0.72], [0.20, 0.55], [0.10, 0.40], [0.08, 0.28],
+          [0.10, 0.16], [0.18, 0.07], [0.30, 0.05], [0.42, 0.10], [0.50, 0.22],
+          [0.58, 0.10], [0.70, 0.05], [0.82, 0.07], [0.90, 0.16], [0.92, 0.28],
+          [0.90, 0.40], [0.80, 0.55], [0.65, 0.72]
+        ]);
+        break;
+
+      // Butterfly — matches: polygon(50% 25%, 38% 10%, 20% 6%, 8% 18%, 2% 35%, 10% 52%, 40% 52%, 18% 68%, 20% 90%, 35% 95%, 48% 80%, 50% 68%, 52% 80%, 65% 95%, 80% 90%, 82% 68%, 60% 52%, 90% 52%, 98% 35%, 92% 18%, 80% 6%, 62% 10%)
       case 'butterfly':
-        ctx.moveTo(x + w * 0.5, y + h * 0.2);
-        ctx.bezierCurveTo(x + w * 0.4, y + h * 0.05, x + w * 0.15, y + h * 0.05, x + w * 0.05, y + h * 0.25);
-        ctx.bezierCurveTo(x - w * 0.05, y + h * 0.45, x + w * 0.1, y + h * 0.65, x + w * 0.45, y + h * 0.55);
-        ctx.bezierCurveTo(x + w * 0.1, y + h * 0.7, x + w * 0.15, y + h * 0.95, x + w * 0.35, y + h * 0.95);
-        ctx.bezierCurveTo(x + w * 0.45, y + h * 0.95, x + w * 0.48, y + h * 0.85, x + w * 0.5, y + h * 0.7);
-        ctx.bezierCurveTo(x + w * 0.52, y + h * 0.85, x + w * 0.55, y + h * 0.95, x + w * 0.65, y + h * 0.95);
-        ctx.bezierCurveTo(x + w * 0.85, y + h * 0.95, x + w * 0.9, y + h * 0.7, x + w * 0.55, y + h * 0.55);
-        ctx.bezierCurveTo(x + w * 0.9, y + h * 0.65, x + w * 1.05, y + h * 0.45, x + w * 0.95, y + h * 0.25);
-        ctx.bezierCurveTo(x + w * 0.85, y + h * 0.05, x + w * 0.6, y + h * 0.05, x + w * 0.5, y + h * 0.2);
+        poly([
+          [0.50, 0.25], [0.38, 0.10], [0.20, 0.06], [0.08, 0.18], [0.02, 0.35],
+          [0.10, 0.52], [0.40, 0.52], [0.18, 0.68], [0.20, 0.90], [0.35, 0.95],
+          [0.48, 0.80], [0.50, 0.68], [0.52, 0.80], [0.65, 0.95], [0.80, 0.90],
+          [0.82, 0.68], [0.60, 0.52], [0.90, 0.52], [0.98, 0.35], [0.92, 0.18],
+          [0.80, 0.06], [0.62, 0.10]
+        ]);
         break;
+
+      // Rounded — full rounded rect
       case 'rounded':
-        ctx.roundRect(x, y, w, h, [radius || 12]);
+        ctx.roundRect(x, y, w, h, [Math.max(16, radius || 16)]);
         break;
+
+      // Square / default — rect with optional corner radius
       case 'square':
       default:
         if (radius && radius > 0) {
