@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-vibewall-production-aesthetic-wallpaper-generator-2026-key-!#$')
 
 # Set DEBUG to False in production
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = ['*']
 
@@ -62,10 +62,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'vibewall_project.wsgi.application'
 
-# Database Configuration (Serverless Writable /tmp Support for Vercel/AWS Lambda)
-IS_VERCEL = 'VERCEL' in os.environ or 'AWS_LAMBDA_FUNCTION_NAME' in os.environ
+# Serverless / Vercel Environment Detection
+IS_SERVERLESS = (
+    'VERCEL' in os.environ or 
+    'VERCEL_ENV' in os.environ or 
+    'AWS_LAMBDA_FUNCTION_NAME' in os.environ or 
+    'LAMBDA_TASK_ROOT' in os.environ or 
+    str(BASE_DIR).startswith('/var/task')
+)
 
-if IS_VERCEL:
+if IS_SERVERLESS:
     DB_DIR = Path('/tmp')
     DB_PATH = DB_DIR / 'db.sqlite3'
     # Copy template db if exists and not present in /tmp
@@ -81,9 +87,12 @@ else:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DB_PATH,
+        'NAME': str(DB_PATH),
     }
 }
+
+# Stateless Signed Cookie Sessions (Optimal & Zero-DB latency for Serverless / Vercel)
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -118,7 +127,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
-if IS_VERCEL:
+if IS_SERVERLESS:
     MEDIA_ROOT = Path('/tmp/media')
 else:
     MEDIA_ROOT = BASE_DIR / 'media'
