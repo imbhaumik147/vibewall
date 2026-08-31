@@ -26,6 +26,10 @@
     }
   </script>
 
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.ico">
+
   <!-- Custom Styles -->
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -691,6 +695,23 @@
               <div id="tile-action-title" class="text-xs font-bold text-white">Hero Block (3×3)</div>
               <div id="tile-action-subtitle" class="text-[9px] text-slate-400 font-mono">Row 2, Col 1</div>
             </div>
+          </div>
+
+          <!-- Move Up/Down/Left/Right Controls -->
+          <div class="flex items-center gap-0.5 px-1 py-0.5 bg-slate-800/80 rounded-xl border border-slate-700/60 flex-shrink-0">
+            <span class="text-[9px] font-bold text-slate-400 px-1 uppercase tracking-wider hidden sm:inline">Move</span>
+            <button id="tile-move-left-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Left (Left Arrow)">
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button id="tile-move-up-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Up (Up Arrow)">
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+            </button>
+            <button id="tile-move-down-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Down (Down Arrow)">
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <button id="tile-move-right-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Right (Right Arrow)">
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
           </div>
 
           <!-- Action: Delete Block / Split into 1x1 Squares -->

@@ -635,6 +635,132 @@ export class WallpaperGridEngine {
     this.render();
   }
 
+  moveSlot(slotIndex, direction) {
+    if (slotIndex < 0 || slotIndex >= this.slots.length) return null;
+    const slot = this.slots[slotIndex];
+    if (!slot) return null;
+
+    let dr = 0;
+    let dc = 0;
+    if (direction === 'up') dr = -1;
+    else if (direction === 'down') dr = 1;
+    else if (direction === 'left') dc = -1;
+    else if (direction === 'right') dc = 1;
+    else return null;
+
+    const newRow = slot.row + dr;
+    const newCol = slot.col + dc;
+
+    // Boundary check
+    if (newRow < 0 || newRow + slot.spanRow > this.rows) return null;
+    if (newCol < 0 || newCol + slot.spanCol > this.cols) return null;
+
+    // Multi-span slot (Hero, 1x2, 2x1, etc.)
+    if (slot.spanRow > 1 || slot.spanCol > 1 || slot.isHero) {
+      // Find cells in new region that are not in old region: R_new \ R_old
+      const evacuatingCells = [];
+      for (let r = newRow; r < newRow + slot.spanRow; r++) {
+        for (let c = newCol; c < newCol + slot.spanCol; c++) {
+          if (r < slot.row || r >= slot.row + slot.spanRow || c < slot.col || c >= slot.col + slot.spanCol) {
+            evacuatingCells.push({ r, c });
+          }
+        }
+      }
+
+      // Find cells vacated in old region: R_old \ R_new
+      const vacatedCells = [];
+      for (let r = slot.row; r < slot.row + slot.spanRow; r++) {
+        for (let c = slot.col; c < slot.col + slot.spanCol; c++) {
+          if (r < newRow || r >= newRow + slot.spanRow || c < newCol || c >= newCol + slot.spanCol) {
+            vacatedCells.push({ r, c });
+          }
+        }
+      }
+
+      // Find all other slots occupying any evacuating cell
+      const overlappingSlots = [];
+      evacuatingCells.forEach(cell => {
+        const found = this.slots.find(s => 
+          s.index !== slotIndex &&
+          s.row <= cell.r && cell.r < s.row + s.spanRow &&
+          s.col <= cell.c && cell.c < s.col + s.spanCol
+        );
+        if (found && !overlappingSlots.includes(found)) {
+          overlappingSlots.push(found);
+        }
+      });
+
+      // If overlapping slots have multi-span, subdivide them to 1x1 first for flexible movement
+      overlappingSlots.forEach(os => {
+        if (os.spanRow > 1 || os.spanCol > 1) {
+          const idx = this.slots.indexOf(os);
+          if (idx !== -1) {
+            const repl = [];
+            for (let r = os.row; r < os.row + os.spanRow; r++) {
+              for (let c = os.col; c < os.col + os.spanCol; c++) {
+                repl.push({
+                  isHero: false,
+                  heroIndex: -1,
+                  row: r,
+                  col: c,
+                  spanRow: 1,
+                  spanCol: 1
+                });
+              }
+            }
+            this.slots.splice(idx, 1, ...repl);
+          }
+        }
+      });
+
+      // Re-index slots
+      this.slots.forEach((s, idx) => s.index = idx);
+
+      // Now find all slots in evacuating cells and assign them to vacated cells
+      let vacIdx = 0;
+      evacuatingCells.forEach(cell => {
+        const targetSlot = this.slots.find(s => s !== slot && s.row === cell.r && s.col === cell.c);
+        if (targetSlot && vacIdx < vacatedCells.length) {
+          targetSlot.row = vacatedCells[vacIdx].r;
+          targetSlot.col = vacatedCells[vacIdx].c;
+          vacIdx++;
+        }
+      });
+
+      // Update hero slot coordinate
+      slot.row = newRow;
+      slot.col = newCol;
+
+      this.render();
+      return slot.index;
+    }
+
+    // Standard 1x1 Slot
+    const targetR = newRow;
+    const targetC = newCol;
+
+    const targetSlot = this.slots.find(s => 
+      s.index !== slotIndex &&
+      s.row <= targetR && targetR < s.row + s.spanRow &&
+      s.col <= targetC && targetC < s.col + s.spanCol
+    );
+
+    if (targetSlot) {
+      if (targetSlot.spanRow === 1 && targetSlot.spanCol === 1) {
+        // Simple 1x1 swap
+        this.swapSlots(slot.index, targetSlot.index);
+        return targetSlot.index;
+      } else {
+        // Target is multi-span / Hero block -> Move the Hero in opposite direction
+        const oppDir = direction === 'up' ? 'down' : direction === 'down' ? 'up' : direction === 'left' ? 'right' : 'left';
+        this.moveSlot(targetSlot.index, oppDir);
+        return slot.index;
+      }
+    }
+
+    return null;
+  }
+
   isColorDark(hex) {
     if (!hex || !hex.startsWith('#')) return true;
     const c = hex.substring(1);

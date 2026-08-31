@@ -240,6 +240,10 @@ class WallpaperApp {
       tileActionIcon: document.getElementById('tile-action-icon'),
       tileActionTitle: document.getElementById('tile-action-title'),
       tileActionSubtitle: document.getElementById('tile-action-subtitle'),
+      tileMoveLeftBtn: document.getElementById('tile-move-left-btn'),
+      tileMoveUpBtn: document.getElementById('tile-move-up-btn'),
+      tileMoveDownBtn: document.getElementById('tile-move-down-btn'),
+      tileMoveRightBtn: document.getElementById('tile-move-right-btn'),
       tileSplitBtn: document.getElementById('tile-split-btn'),
       tileSplitBtnText: document.getElementById('tile-split-btn-text'),
       tileReplaceBtn: document.getElementById('tile-replace-btn'),
@@ -276,6 +280,26 @@ class WallpaperApp {
       });
       ro.observe(this.dom.canvasWrapper);
     }
+
+    if (this.dom.leftSidebar) {
+      this.dom.leftSidebar.addEventListener('transitionend', () => this.fitCanvasToViewport());
+    }
+    if (this.dom.rightSidebar) {
+      this.dom.rightSidebar.addEventListener('transitionend', () => this.fitCanvasToViewport());
+    }
+  }
+
+  animateCanvasFit(duration = 350) {
+    const start = performance.now();
+    const tick = (now) => {
+      this.fitCanvasToViewport();
+      if (now - start < duration) {
+        requestAnimationFrame(tick);
+      } else {
+        this.fitCanvasToViewport();
+      }
+    };
+    requestAnimationFrame(tick);
   }
 
   updateGridDimensions() {
@@ -519,6 +543,18 @@ class WallpaperApp {
     }
   }
 
+  moveSelectedBlock(direction) {
+    if (this.selectedSlotIndex === null || this.selectedSlotIndex === undefined) return;
+    const newIndex = this.engine.moveSlot(this.selectedSlotIndex, direction);
+    if (newIndex !== null && newIndex !== undefined) {
+      this.selectedSlotIndex = newIndex;
+      this.showTileActionBar(newIndex);
+      this.showToast(`Moved block ${direction}`, 'success');
+    } else {
+      this.showToast(`Cannot move block ${direction} (edge reached)`, 'info');
+    }
+  }
+
   hideTileActionBar() {
     if (this.dom.tileActionBar) {
       this.dom.tileActionBar.classList.add('hidden');
@@ -667,7 +703,7 @@ class WallpaperApp {
       this.dom.modeSelectBtn.addEventListener('click', () => this.setInteractionMode('select'));
     }
 
-    // Escape key clears selection, Delete/Backspace deletes/splits selected block
+    // Escape key clears selection, Delete/Backspace deletes/splits selected block, Arrow keys move block
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
         return;
@@ -692,8 +728,42 @@ class WallpaperApp {
             this.clearSelection();
           }
         }
+      } else if (e.key === 'ArrowUp') {
+        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
+          e.preventDefault();
+          this.moveSelectedBlock('up');
+        }
+      } else if (e.key === 'ArrowDown') {
+        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
+          e.preventDefault();
+          this.moveSelectedBlock('down');
+        }
+      } else if (e.key === 'ArrowLeft') {
+        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
+          e.preventDefault();
+          this.moveSelectedBlock('left');
+        }
+      } else if (e.key === 'ArrowRight') {
+        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
+          e.preventDefault();
+          this.moveSelectedBlock('right');
+        }
       }
     });
+
+    // Floating Tile Action Bar Directional Move Buttons
+    if (this.dom.tileMoveLeftBtn) {
+      this.dom.tileMoveLeftBtn.addEventListener('click', () => this.moveSelectedBlock('left'));
+    }
+    if (this.dom.tileMoveUpBtn) {
+      this.dom.tileMoveUpBtn.addEventListener('click', () => this.moveSelectedBlock('up'));
+    }
+    if (this.dom.tileMoveDownBtn) {
+      this.dom.tileMoveDownBtn.addEventListener('click', () => this.moveSelectedBlock('down'));
+    }
+    if (this.dom.tileMoveRightBtn) {
+      this.dom.tileMoveRightBtn.addEventListener('click', () => this.moveSelectedBlock('right'));
+    }
 
     // Floating Tile Action Bar Button Events
     if (this.dom.tileSplitBtn) {
@@ -1325,8 +1395,7 @@ class WallpaperApp {
       this.dom.toggleLeftSidebarBtn.classList.toggle('bg-white', !shouldCollapse);
       this.dom.toggleLeftSidebarBtn.classList.toggle('shadow-sm', !shouldCollapse);
     }
-    setTimeout(() => this.fitCanvasToViewport(), 60);
-    setTimeout(() => this.fitCanvasToViewport(), 320);
+    this.animateCanvasFit(350);
   }
 
   toggleRightSidebar(forceOpen = null) {
@@ -1344,8 +1413,7 @@ class WallpaperApp {
       this.dom.toggleRightSidebarBtn.classList.toggle('bg-white', !shouldCollapse);
       this.dom.toggleRightSidebarBtn.classList.toggle('shadow-sm', !shouldCollapse);
     }
-    setTimeout(() => this.fitCanvasToViewport(), 60);
-    setTimeout(() => this.fitCanvasToViewport(), 320);
+    this.animateCanvasFit(350);
   }
 
   isValidImage(file) {
