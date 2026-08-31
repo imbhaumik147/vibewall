@@ -636,7 +636,8 @@ export class WallpaperGridEngine {
   }
 
   moveSlot(slotIndex, direction) {
-    if (slotIndex < 0 || slotIndex >= this.slots.length) return null;
+    slotIndex = parseInt(slotIndex, 10);
+    if (isNaN(slotIndex) || slotIndex < 0 || slotIndex >= this.slots.length) return null;
     const slot = this.slots[slotIndex];
     if (!slot) return null;
 
@@ -651,114 +652,144 @@ export class WallpaperGridEngine {
     const newRow = slot.row + dr;
     const newCol = slot.col + dc;
 
-    // Boundary check
+    // Check canvas boundaries
     if (newRow < 0 || newRow + slot.spanRow > this.rows) return null;
     if (newCol < 0 || newCol + slot.spanCol > this.cols) return null;
 
-    // Multi-span slot (Hero, 1x2, 2x1, etc.)
-    if (slot.spanRow > 1 || slot.spanCol > 1 || slot.isHero) {
-      // Find cells in new region that are not in old region: R_new \ R_old
-      const evacuatingCells = [];
-      for (let r = newRow; r < newRow + slot.spanRow; r++) {
-        for (let c = newCol; c < newCol + slot.spanCol; c++) {
-          if (r < slot.row || r >= slot.row + slot.spanRow || c < slot.col || c >= slot.col + slot.spanCol) {
-            evacuatingCells.push({ r, c });
+    // Build a 2D matrix map of slot object per cell (rows x cols)
+    const gridMap = Array.from({ length: this.rows }, () => Array(this.cols).fill(null));
+    this.slots.forEach((s) => {
+      for (let r = s.row; r < s.row + s.spanRow; r++) {
+        for (let c = s.col; c < s.col + s.spanCol; c++) {
+          if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
+            gridMap[r][c] = s;
           }
         }
       }
+    });
 
-      // Find cells vacated in old region: R_old \ R_new
-      const vacatedCells = [];
-      for (let r = slot.row; r < slot.row + slot.spanRow; r++) {
-        for (let c = slot.col; c < slot.col + slot.spanCol; c++) {
-          if (r < newRow || r >= newRow + slot.spanRow || c < newCol || c >= newCol + slot.spanCol) {
-            vacatedCells.push({ r, c });
-          }
-        }
+    // 1. STANDARD 1x1 BLOCK MOVEMENT
+    if (slot.spanRow === 1 && slot.spanCol === 1 && !slot.isHero) {
+      const neighborSlot = gridMap[newRow][newCol];
+      if (!neighborSlot || neighborSlot.index === slot.index) return null;
+
+      if (neighborSlot.spanRow === 1 && neighborSlot.spanCol === 1 && !neighborSlot.isHero) {
+        // Direct swap of images and shapes between two 1x1 slots
+        const tempImg = this.slotImages[slot.index];
+        this.slotImages[slot.index] = this.slotImages[neighborSlot.index];
+        this.slotImages[neighborSlot.index] = tempImg;
+
+        const tempShape = this.slotShapes[slot.index];
+        this.slotShapes[slot.index] = this.slotShapes[neighborSlot.index];
+        this.slotShapes[neighborSlot.index] = tempShape;
+
+        this.render();
+        this.onSwap({ type: 'slot-swap', sourceIndex: slot.index, targetIndex: neighborSlot.index });
+        return neighborSlot.index;
+      } else {
+        // Neighbor is a Hero / multi-span block: shift the Hero in the opposite direction
+        const oppDir = direction === 'up' ? 'down' : direction === 'down' ? 'up' : direction === 'left' ? 'right' : 'left';
+        this.moveSlot(neighborSlot.index, oppDir);
+        // Find our slot at new position
+        const ourMovedSlot = this.slots.find(s => s.row === newRow && s.col === newCol);
+        return ourMovedSlot ? ourMovedSlot.index : slot.index;
       }
-
-      // Find all other slots occupying any evacuating cell
-      const overlappingSlots = [];
-      evacuatingCells.forEach(cell => {
-        const found = this.slots.find(s => 
-          s.index !== slotIndex &&
-          s.row <= cell.r && cell.r < s.row + s.spanRow &&
-          s.col <= cell.c && cell.c < s.col + s.spanCol
-        );
-        if (found && !overlappingSlots.includes(found)) {
-          overlappingSlots.push(found);
-        }
-      });
-
-      // If overlapping slots have multi-span, subdivide them to 1x1 first for flexible movement
-      overlappingSlots.forEach(os => {
-        if (os.spanRow > 1 || os.spanCol > 1) {
-          const idx = this.slots.indexOf(os);
-          if (idx !== -1) {
-            const repl = [];
-            for (let r = os.row; r < os.row + os.spanRow; r++) {
-              for (let c = os.col; c < os.col + os.spanCol; c++) {
-                repl.push({
-                  isHero: false,
-                  heroIndex: -1,
-                  row: r,
-                  col: c,
-                  spanRow: 1,
-                  spanCol: 1
-                });
-              }
-            }
-            this.slots.splice(idx, 1, ...repl);
-          }
-        }
-      });
-
-      // Re-index slots
-      this.slots.forEach((s, idx) => s.index = idx);
-
-      // Now find all slots in evacuating cells and assign them to vacated cells
-      let vacIdx = 0;
-      evacuatingCells.forEach(cell => {
-        const targetSlot = this.slots.find(s => s !== slot && s.row === cell.r && s.col === cell.c);
-        if (targetSlot && vacIdx < vacatedCells.length) {
-          targetSlot.row = vacatedCells[vacIdx].r;
-          targetSlot.col = vacatedCells[vacIdx].c;
-          vacIdx++;
-        }
-      });
-
-      // Update hero slot coordinate
-      slot.row = newRow;
-      slot.col = newCol;
-
-      this.render();
-      return slot.index;
     }
 
-    // Standard 1x1 Slot
-    const targetR = newRow;
-    const targetC = newCol;
+    // 2. HERO / MULTI-SPAN BLOCK MOVEMENT (2x2, 3x3, 1x2, 2x1, etc.)
+    const targetCells = [];
+    for (let r = newRow; r < newRow + slot.spanRow; r++) {
+      for (let c = newCol; c < newCol + slot.spanCol; c++) {
+        targetCells.push({ r, c });
+      }
+    }
 
-    const targetSlot = this.slots.find(s => 
-      s.index !== slotIndex &&
-      s.row <= targetR && targetR < s.row + s.spanRow &&
-      s.col <= targetC && targetC < s.col + s.spanCol
+    // Cells that the hero will enter (not in current hero area)
+    const enteringCells = targetCells.filter(cell => 
+      cell.r < slot.row || cell.r >= slot.row + slot.spanRow ||
+      cell.c < slot.col || cell.c >= slot.col + slot.spanCol
     );
 
-    if (targetSlot) {
-      if (targetSlot.spanRow === 1 && targetSlot.spanCol === 1) {
-        // Simple 1x1 swap
-        this.swapSlots(slot.index, targetSlot.index);
-        return targetSlot.index;
-      } else {
-        // Target is multi-span / Hero block -> Move the Hero in opposite direction
-        const oppDir = direction === 'up' ? 'down' : direction === 'down' ? 'up' : direction === 'left' ? 'right' : 'left';
-        this.moveSlot(targetSlot.index, oppDir);
-        return slot.index;
+    // Cells that the hero will leave (vacated)
+    const leavingCells = [];
+    for (let r = slot.row; r < slot.row + slot.spanRow; r++) {
+      for (let c = slot.col; c < slot.col + slot.spanCol; c++) {
+        if (r < newRow || r >= newRow + slot.spanRow || c < newCol || c >= newCol + slot.spanCol) {
+          leavingCells.push({ r, c });
+        }
       }
     }
 
-    return null;
+    if (enteringCells.length === 0 || leavingCells.length === 0) return null;
+
+    // Identify all other slots currently occupying entering cells
+    const displacedSlots = [];
+    enteringCells.forEach(cell => {
+      const occupant = gridMap[cell.r][cell.c];
+      if (occupant && occupant.index !== slot.index && !displacedSlots.includes(occupant)) {
+        displacedSlots.push(occupant);
+      }
+    });
+
+    // If any displaced slot is multi-span, subdivide it to 1x1s so they can neatly fill the vacated cells
+    displacedSlots.forEach(ds => {
+      if (ds.spanRow > 1 || ds.spanCol > 1) {
+        const sIdx = this.slots.indexOf(ds);
+        if (sIdx !== -1) {
+          const dsImage = this.slotImages[ds.index];
+          const repl = [];
+          const replImages = [];
+          for (let r = ds.row; r < ds.row + ds.spanRow; r++) {
+            for (let c = ds.col; c < ds.col + ds.spanCol; c++) {
+              repl.push({
+                isHero: false,
+                heroIndex: -1,
+                row: r,
+                col: c,
+                spanRow: 1,
+                spanCol: 1
+              });
+              replImages.push(dsImage || '');
+            }
+          }
+          this.slots.splice(sIdx, 1, ...repl);
+          this.slotImages.splice(sIdx, 1, ...replImages);
+        }
+      }
+    });
+
+    // Re-index all slots to keep 1:1 sync with slotImages
+    this.slots.forEach((s, idx) => s.index = idx);
+
+    // Re-build gridMap
+    const updatedMap = Array.from({ length: this.rows }, () => Array(this.cols).fill(null));
+    this.slots.forEach(s => {
+      for (let r = s.row; r < s.row + s.spanRow; r++) {
+        for (let c = s.col; c < s.col + s.spanCol; c++) {
+          if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
+            updatedMap[r][c] = s;
+          }
+        }
+      }
+    });
+
+    // Move each 1x1 slot in enteringCells to one of leavingCells
+    let leaveIdx = 0;
+    enteringCells.forEach(cell => {
+      const cellSlot = updatedMap[cell.r][cell.c];
+      if (cellSlot && cellSlot.index !== slot.index && leaveIdx < leavingCells.length) {
+        cellSlot.row = leavingCells[leaveIdx].r;
+        cellSlot.col = leavingCells[leaveIdx].c;
+        leaveIdx++;
+      }
+    });
+
+    // Update the hero/spanning slot coordinates
+    slot.row = newRow;
+    slot.col = newCol;
+
+    this.render();
+    return slot.index;
   }
 
   isColorDark(hex) {

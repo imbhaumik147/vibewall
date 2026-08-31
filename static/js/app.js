@@ -753,16 +753,32 @@ class WallpaperApp {
 
     // Floating Tile Action Bar Directional Move Buttons
     if (this.dom.tileMoveLeftBtn) {
-      this.dom.tileMoveLeftBtn.addEventListener('click', () => this.moveSelectedBlock('left'));
+      this.dom.tileMoveLeftBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.moveSelectedBlock('left');
+      });
     }
     if (this.dom.tileMoveUpBtn) {
-      this.dom.tileMoveUpBtn.addEventListener('click', () => this.moveSelectedBlock('up'));
+      this.dom.tileMoveUpBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.moveSelectedBlock('up');
+      });
     }
     if (this.dom.tileMoveDownBtn) {
-      this.dom.tileMoveDownBtn.addEventListener('click', () => this.moveSelectedBlock('down'));
+      this.dom.tileMoveDownBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.moveSelectedBlock('down');
+      });
     }
     if (this.dom.tileMoveRightBtn) {
-      this.dom.tileMoveRightBtn.addEventListener('click', () => this.moveSelectedBlock('right'));
+      this.dom.tileMoveRightBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.moveSelectedBlock('right');
+      });
     }
 
     // Floating Tile Action Bar Button Events
