@@ -4,7 +4,6 @@ Django settings for vibewall_project.
 
 from pathlib import Path
 import os
-import shutil
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -12,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-vibewall-production-aesthetic-wallpaper-generator-2026-key-!#$')
 
-# Set DEBUG to False in production
+# In production on Vercel, DEBUG should default to False
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = ['*']
@@ -62,27 +61,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'vibewall_project.wsgi.application'
 
-# Serverless / Vercel Environment Detection
-IS_SERVERLESS = (
-    'VERCEL' in os.environ or 
-    'VERCEL_ENV' in os.environ or 
-    'AWS_LAMBDA_FUNCTION_NAME' in os.environ or 
-    'LAMBDA_TASK_ROOT' in os.environ or 
-    str(BASE_DIR).startswith('/var/task')
-)
-
-if IS_SERVERLESS:
-    DB_DIR = Path('/tmp')
-    DB_PATH = DB_DIR / 'db.sqlite3'
-    # Copy template db if exists and not present in /tmp
-    src_db = BASE_DIR / 'db.sqlite3'
-    if src_db.exists() and not DB_PATH.exists():
-        try:
-            shutil.copy2(src_db, DB_PATH)
-        except Exception:
-            pass
-else:
+# Database Configuration
+# On Linux / Vercel / AWS Lambda, use writable /tmp; on Windows local dev use project dir
+if os.name == 'nt' and not ('VERCEL' in os.environ or 'AWS_LAMBDA_FUNCTION_NAME' in os.environ):
     DB_PATH = BASE_DIR / 'db.sqlite3'
+else:
+    DB_PATH = Path('/tmp/db.sqlite3')
 
 DATABASES = {
     'default': {
@@ -91,7 +75,7 @@ DATABASES = {
     }
 }
 
-# Stateless Signed Cookie Sessions (Optimal & Zero-DB latency for Serverless / Vercel)
+# Stateless Signed Cookie Sessions (Zero database latency & 100% serverless compatible)
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 # Password validation
@@ -124,10 +108,10 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # WhiteNoise storage configuration
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Media files
-if IS_SERVERLESS:
+if os.name != 'nt' or 'VERCEL' in os.environ:
     MEDIA_ROOT = Path('/tmp/media')
 else:
     MEDIA_ROOT = BASE_DIR / 'media'
