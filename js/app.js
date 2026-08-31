@@ -233,7 +233,18 @@ class WallpaperApp {
       exportFormatSelect: document.getElementById('export-format'),
       exportQualitySelect: document.getElementById('export-quality'),
       exportPreviewCanvas: document.getElementById('export-preview-canvas'),
-      exportResInfo: document.getElementById('export-res-info')
+      exportResInfo: document.getElementById('export-res-info'),
+
+      // Floating Block Inspector & Action Bar
+      tileActionBar: document.getElementById('tile-action-bar'),
+      tileActionIcon: document.getElementById('tile-action-icon'),
+      tileActionTitle: document.getElementById('tile-action-title'),
+      tileActionSubtitle: document.getElementById('tile-action-subtitle'),
+      tileSplitBtn: document.getElementById('tile-split-btn'),
+      tileSplitBtnText: document.getElementById('tile-split-btn-text'),
+      tileReplaceBtn: document.getElementById('tile-replace-btn'),
+      tileClearBtn: document.getElementById('tile-clear-btn'),
+      tileActionCloseBtn: document.getElementById('tile-action-close-btn')
     };
   }
 
@@ -244,11 +255,9 @@ class WallpaperApp {
         this.showToast('Covers swapped successfully!', 'success');
       },
       onSlotClick: (slotIndex) => {
+        this.showTileActionBar(slotIndex);
         if (this.interactionMode === 'select') {
           this.handleCanvasSlotSelect(slotIndex);
-        } else {
-          this.targetSlotForReplace = slotIndex;
-          this.dom.singleSlotFileInput.click();
         }
       }
     });
@@ -401,6 +410,7 @@ class WallpaperApp {
       this.showToast('Mode: Click & Swap items', 'info');
     }
   }
+
   handleTrayCardClick(imgSrc, rowElement, itemId) {
     if (this.interactionMode !== 'select') return;
 
@@ -462,6 +472,60 @@ class WallpaperApp {
     }
   }
 
+  showTileActionBar(slotIndex) {
+    if (!this.dom.tileActionBar) return;
+    this.selectedSlotIndex = slotIndex;
+    const slot = this.engine.slots[slotIndex];
+    if (!slot) return;
+
+    const count = slot.spanRow * slot.spanCol;
+    if (slot.isHero) {
+      this.dom.tileActionTitle.innerText = `Hero Block (${slot.spanCol}×${slot.spanRow})`;
+      this.dom.tileActionIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+      if (this.dom.tileSplitBtnText) {
+        this.dom.tileSplitBtnText.innerText = `Remove Hero & Fit ${count} Squares`;
+      }
+      if (this.dom.tileSplitBtn) {
+        this.dom.tileSplitBtn.style.display = 'inline-flex';
+      }
+    } else if (slot.spanRow > 1 || slot.spanCol > 1) {
+      this.dom.tileActionTitle.innerText = `Spanning Block (${slot.spanCol}×${slot.spanRow})`;
+      this.dom.tileActionIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-indigo-400 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
+      if (this.dom.tileSplitBtnText) {
+        this.dom.tileSplitBtnText.innerText = `Split into ${count} Square Blocks`;
+      }
+      if (this.dom.tileSplitBtn) {
+        this.dom.tileSplitBtn.style.display = 'inline-flex';
+      }
+    } else {
+      this.dom.tileActionTitle.innerText = `Standard Block (1×1)`;
+      this.dom.tileActionIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-slate-400 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/></svg>`;
+      if (this.dom.tileSplitBtn) {
+        this.dom.tileSplitBtn.style.display = 'none';
+      }
+    }
+
+    if (this.dom.tileActionSubtitle) {
+      this.dom.tileActionSubtitle.innerText = `Row ${slot.row + 1}, Col ${slot.col + 1}`;
+    }
+
+    this.dom.tileActionBar.classList.remove('hidden');
+
+    // Highlight selected tile on canvas
+    document.querySelectorAll('.grid-tile, .grid-tile-skeleton').forEach(el => el.classList.remove('is-selected-source'));
+    const tileEl = this.dom.gridContainer.querySelector(`[data-slot-index="${slotIndex}"]`);
+    if (tileEl) {
+      tileEl.classList.add('is-selected-source');
+    }
+  }
+
+  hideTileActionBar() {
+    if (this.dom.tileActionBar) {
+      this.dom.tileActionBar.classList.add('hidden');
+    }
+    this.selectedSlotIndex = null;
+  }
+
   clearSelection() {
     if (this.selectedSource && this.selectedSource.el) {
       this.selectedSource.el.classList.remove('is-selected-source', 'is-selected-table-row');
@@ -470,6 +534,7 @@ class WallpaperApp {
       el.classList.remove('is-selected-source', 'is-selected-table-row');
     });
     this.selectedSource = null;
+    this.hideTileActionBar();
   }
 
   toggleHeroImage(itemId) {
@@ -601,14 +666,76 @@ class WallpaperApp {
     if (this.dom.modeSelectBtn) {
       this.dom.modeSelectBtn.addEventListener('click', () => this.setInteractionMode('select'));
     }
-    if (this.dom.cancelSelectionBtn) {
-      this.dom.cancelSelectionBtn.addEventListener('click', () => this.clearSelection());
+
+    // Escape key clears selection, Delete/Backspace deletes/splits selected block
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        this.clearSelection();
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
+          const slot = this.engine.slots[this.selectedSlotIndex];
+          if (slot && (slot.isHero || slot.spanRow > 1 || slot.spanCol > 1)) {
+            const res = this.engine.subdivideSlot(this.selectedSlotIndex);
+            if (res) {
+              this.showToast(`Removed block and fitted ${res.count} normal square blocks in its place!`, 'success');
+              this.hideTileActionBar();
+              this.clearSelection();
+              this.updateHeroStatusUI();
+            }
+          } else if (this.selectedSlotIndex !== null) {
+            this.engine.clearSlotImage(this.selectedSlotIndex);
+            this.showToast('Photo cleared from block', 'info');
+            this.hideTileActionBar();
+            this.clearSelection();
+          }
+        }
+      }
+    });
+
+    // Floating Tile Action Bar Button Events
+    if (this.dom.tileSplitBtn) {
+      this.dom.tileSplitBtn.addEventListener('click', () => {
+        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
+          const res = this.engine.subdivideSlot(this.selectedSlotIndex);
+          if (res) {
+            this.showToast(`Removed block and fitted ${res.count} normal square blocks in its place!`, 'success');
+            this.hideTileActionBar();
+            this.clearSelection();
+            this.updateHeroStatusUI();
+          }
+        }
+      });
     }
 
-    // Escape key clears selection
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') this.clearSelection();
-    });
+    if (this.dom.tileReplaceBtn) {
+      this.dom.tileReplaceBtn.addEventListener('click', () => {
+        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
+          this.targetSlotForReplace = this.selectedSlotIndex;
+          this.dom.singleSlotFileInput.click();
+        }
+      });
+    }
+
+    if (this.dom.tileClearBtn) {
+      this.dom.tileClearBtn.addEventListener('click', () => {
+        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
+          this.engine.clearSlotImage(this.selectedSlotIndex);
+          this.showToast('Photo cleared from block', 'info');
+          this.hideTileActionBar();
+          this.clearSelection();
+        }
+      });
+    }
+
+    if (this.dom.tileActionCloseBtn) {
+      this.dom.tileActionCloseBtn.addEventListener('click', () => {
+        this.hideTileActionBar();
+        this.clearSelection();
+      });
+    }
 
     // Sidebar Tabs
     if (this.dom.tabBtns) {
@@ -1263,13 +1390,11 @@ class WallpaperApp {
         loadedCount++;
 
         if (loadedCount === validFiles.length) {
-          // If we were using default starter aesthetic images, clear them now to make room for user's own photos!
           if (this.isUsingStarterImages) {
             this.uploadedImages = [];
             this.isUsingStarterImages = false;
           }
 
-          // Star up to heroCount from newly uploaded images if needed
           const existingHeroCount = this.uploadedImages.filter(i => i.isHero).length;
           const targetHeroes = this.engine.heroCount || 3;
           let neededHeroes = Math.max(0, targetHeroes - existingHeroCount);

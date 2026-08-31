@@ -574,6 +574,67 @@ export class WallpaperGridEngine {
     this.render();
   }
 
+  subdivideSlot(slotIndex) {
+    if (slotIndex < 0 || slotIndex >= this.slots.length) return null;
+    const slot = this.slots[slotIndex];
+    if (!slot) return null;
+
+    const { row, col, spanRow, spanCol, isHero } = slot;
+    const count = spanRow * spanCol;
+
+    if (spanRow <= 1 && spanCol <= 1 && !isHero) {
+      // Already 1x1 standard block - clear image
+      this.slotImages[slotIndex] = '';
+      this.render();
+      return { count: 1, type: 'clear' };
+    }
+
+    // Create 1x1 standard replacement slots
+    const replacementSlots = [];
+    for (let r = row; r < row + spanRow; r++) {
+      for (let c = col; c < col + spanCol; c++) {
+        replacementSlots.push({
+          isHero: false,
+          heroIndex: -1,
+          row: r,
+          col: c,
+          spanRow: 1,
+          spanCol: 1
+        });
+      }
+    }
+
+    // Replace multi-span slot with 1x1 replacement slots
+    this.slots.splice(slotIndex, 1, ...replacementSlots);
+
+    // Re-index all slots
+    this.slots.forEach((s, idx) => {
+      s.index = idx;
+    });
+
+    // If hero count needs adjustment
+    if (isHero && this.heroCount > 0) {
+      this.heroCount = Math.max(0, this.heroCount - 1);
+    }
+
+    this.refreshSlotImages();
+    this.render();
+
+    return { count, row, col, spanRow, spanCol, type: 'subdivide' };
+  }
+
+  clearSlotImage(slotIndex) {
+    if (slotIndex < 0 || slotIndex >= this.slots.length) return;
+    this.slotImages[slotIndex] = '';
+    this.render();
+  }
+
+  setSlotImage(slotIndex, imgSrc) {
+    if (slotIndex < 0 || slotIndex >= this.slots.length) return;
+    this.slotImages[slotIndex] = imgSrc;
+    this.render();
+  }
+
   isColorDark(hex) {
     if (!hex || !hex.startsWith('#')) return true;
     const c = hex.substring(1);
