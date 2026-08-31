@@ -1,0 +1,511 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg-main: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --border-color: #e2e8f0;
+  --border-focus: #0f172a;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent-primary: #0f172a;
+  --accent-hover: #1e293b;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Card & Surface Elevation */
+.surface-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* Custom Range Sliders */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e2e8f0;
+  height: 6px;
+  border-radius: 9999px;
+  outline: none;
+  transition: background 0.2s ease;
+}
+input[type=range]:hover {
+  background: #cbd5e1;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0f172a;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.25);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #4f46e5;
+}
+
+/* Canvas Viewport (Clean, solid studio background) */
+.canvas-viewport {
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Phone Bezel Preview Frame */
+.device-frame-phone {
+  box-shadow: 
+    0 0 0 10px #e2e8f0,
+    0 0 0 12px #94a3b8,
+    0 20px 50px -10px rgba(15, 23, 42, 0.25);
+  border-radius: 44px;
+  overflow: hidden;
+  position: relative;
+  background: #000;
+}
+
+.device-dynamic-island {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 20px;
+  background: #000000;
+  border-radius: 20px;
+  z-index: 40;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* Grid & Drag-Drop Interaction */
+.grid-tile {
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  cursor: grab;
+  touch-action: none;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.grid-tile:active {
+  cursor: grabbing;
+}
+
+.selection-mode-active .grid-tile {
+  cursor: pointer !important;
+}
+
+.grid-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+/* Skeleton Wireframe Tile Styling */
+.grid-tile-skeleton {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.grid-tile-skeleton:hover {
+  transform: scale(1.02);
+}
+
+.grid-tile-skeleton.skeleton-dark {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+}
+.grid-tile-skeleton.skeleton-dark:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.grid-tile-skeleton.skeleton-light {
+  background: rgba(15, 23, 42, 0.03);
+  border: 1px dashed rgba(15, 23, 42, 0.2);
+}
+.grid-tile-skeleton.skeleton-light:hover {
+  background: rgba(15, 23, 42, 0.07);
+  border-color: rgba(15, 23, 42, 0.35);
+}
+
+/* Hover overlay on tile */
+.tile-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 10;
+}
+
+.grid-tile:hover .tile-hover-overlay {
+  opacity: 1;
+}
+
+.selection-mode-active .tile-hover-overlay {
+  display: none !important;
+}
+
+/* Table Format Row Styling */
+.upload-table-row {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.upload-table-row:hover {
+  background-color: #f8fafc;
+}
+
+.upload-table-row.is-selected-table-row {
+  background-color: #eef2ff !important;
+  border-left: 4px solid #4f46e5 !important;
+}
+
+/* Selection Mode Active Highlight Ring on Canvas and Elements */
+.is-selected-source {
+  outline: 3px solid #4f46e5 !important;
+  outline-offset: -1px !important;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.45), 0 10px 25px -5px rgba(79, 70, 229, 0.5) !important;
+  transform: scale(1.02) !important;
+  z-index: 35 !important;
+}
+
+.is-selected-source::after {
+  content: 'SELECTED';
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  z-index: 30;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+/* Dragging States */
+.grid-tile.is-dragging, .upload-table-row.is-dragging {
+  opacity: 0.35;
+  transform: scale(0.92);
+  filter: grayscale(100%);
+}
+
+.grid-tile.drag-over-target {
+  transform: scale(1.04);
+  box-shadow: 0 0 0 3px #0f172a, 0 12px 24px -6px rgba(15, 23, 42, 0.4) !important;
+  z-index: 30;
+}
+
+.grid-tile.drag-over-target::after {
+  content: 'DROP TO PLACE';
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  z-index: 25;
+  border-radius: inherit;
+}
+
+/* Swap pulse */
+@keyframes swapPulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.tile-just-swapped {
+  animation: swapPulse 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Filter Effects */
+.filter-vintage {
+  filter: sepia(0.35) contrast(1.1) brightness(0.95) saturate(1.2);
+}
+.filter-bw {
+  filter: grayscale(1) contrast(1.2) brightness(0.95);
+}
+.filter-vibrant {
+  filter: saturate(1.6) contrast(1.15) brightness(1.02);
+}
+.filter-warm {
+  filter: sepia(0.2) hue-rotate(-15deg) saturate(1.3);
+}
+.filter-cool {
+  filter: hue-rotate(20deg) saturate(120%) contrast(105%);
+}
+
+/* Toast Notifications */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  backdrop-filter: blur(12px);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Tile Shapes & Vector Clip Paths (Applied to container, img, and skeleton) */
+.tile-shape-square,
+.grid-tile.tile-shape-square,
+.grid-tile.tile-shape-square img {
+  -webkit-clip-path: none !important;
+  clip-path: none !important;
+}
+
+.tile-shape-rounded,
+.grid-tile.tile-shape-rounded {
+  border-radius: 18px !important;
+  -webkit-clip-path: none !important;
+  clip-path: none !important;
+}
+.grid-tile.tile-shape-rounded img {
+  border-radius: 18px !important;
+}
+
+/* Circle */
+.tile-shape-circle,
+.grid-tile.tile-shape-circle,
+.grid-tile.tile-shape-circle img,
+.grid-tile-skeleton.tile-shape-circle {
+  border-radius: 9999px !important;
+  -webkit-clip-path: circle(50% at 50% 50%) !important;
+  clip-path: circle(50% at 50% 50%) !important;
+}
+
+/* Diamond (Rhombus) */
+.tile-shape-diamond,
+.grid-tile.tile-shape-diamond,
+.grid-tile.tile-shape-diamond img,
+.grid-tile-skeleton.tile-shape-diamond {
+  border-radius: 0 !important;
+  -webkit-clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%) !important;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%) !important;
+}
+
+/* Hexagon */
+.tile-shape-hexagon,
+.grid-tile.tile-shape-hexagon,
+.grid-tile.tile-shape-hexagon img,
+.grid-tile-skeleton.tile-shape-hexagon {
+  border-radius: 0 !important;
+  -webkit-clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%) !important;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%) !important;
+}
+
+/* Star (5-Point) */
+.tile-shape-star,
+.grid-tile.tile-shape-star,
+.grid-tile.tile-shape-star img,
+.grid-tile-skeleton.tile-shape-star {
+  border-radius: 0 !important;
+  -webkit-clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%) !important;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%) !important;
+}
+
+/* Unicorn Silhouette */
+.tile-shape-unicorn,
+.grid-tile.tile-shape-unicorn,
+.grid-tile.tile-shape-unicorn img,
+.grid-tile-skeleton.tile-shape-unicorn {
+  border-radius: 0 !important;
+  -webkit-clip-path: polygon(85% 5%, 58% 20%, 48% 12%, 40% 20%, 28% 28%, 20% 42%, 15% 60%, 12% 82%, 15% 95%, 38% 95%, 55% 88%, 60% 74%, 68% 64%, 84% 54%, 88% 46%, 85% 38%, 72% 32%, 65% 22%, 85% 5%) !important;
+  clip-path: polygon(85% 5%, 58% 20%, 48% 12%, 40% 20%, 28% 28%, 20% 42%, 15% 60%, 12% 82%, 15% 95%, 38% 95%, 55% 88%, 60% 74%, 68% 64%, 84% 54%, 88% 46%, 85% 38%, 72% 32%, 65% 22%, 85% 5%) !important;
+}
+
+/* Heart */
+.tile-shape-heart,
+.grid-tile.tile-shape-heart,
+.grid-tile.tile-shape-heart img,
+.grid-tile-skeleton.tile-shape-heart {
+  border-radius: 0 !important;
+  -webkit-clip-path: polygon(50% 88%, 35% 72%, 20% 55%, 10% 40%, 8% 28%, 10% 16%, 18% 7%, 30% 5%, 42% 10%, 50% 22%, 58% 10%, 70% 5%, 82% 7%, 90% 16%, 92% 28%, 90% 40%, 80% 55%, 65% 72%) !important;
+  clip-path: polygon(50% 88%, 35% 72%, 20% 55%, 10% 40%, 8% 28%, 10% 16%, 18% 7%, 30% 5%, 42% 10%, 50% 22%, 58% 10%, 70% 5%, 82% 7%, 90% 16%, 92% 28%, 90% 40%, 80% 55%, 65% 72%) !important;
+}
+@supports (clip-path: url(#tile-clip-heart)) {
+  .tile-shape-heart,
+  .grid-tile.tile-shape-heart,
+  .grid-tile.tile-shape-heart img,
+  .grid-tile-skeleton.tile-shape-heart {
+    -webkit-clip-path: url(#tile-clip-heart) !important;
+    clip-path: url(#tile-clip-heart) !important;
+  }
+}
+
+/* Butterfly */
+.tile-shape-butterfly,
+.grid-tile.tile-shape-butterfly,
+.grid-tile.tile-shape-butterfly img,
+.grid-tile-skeleton.tile-shape-butterfly {
+  border-radius: 0 !important;
+  -webkit-clip-path: polygon(50% 25%, 38% 10%, 20% 6%, 8% 18%, 2% 35%, 10% 52%, 40% 52%, 18% 68%, 20% 90%, 35% 95%, 48% 80%, 50% 68%, 52% 80%, 65% 95%, 80% 90%, 82% 68%, 60% 52%, 90% 52%, 98% 35%, 92% 18%, 80% 6%, 62% 10%) !important;
+  clip-path: polygon(50% 25%, 38% 10%, 20% 6%, 8% 18%, 2% 35%, 10% 52%, 40% 52%, 18% 68%, 20% 90%, 35% 95%, 48% 80%, 50% 68%, 52% 80%, 65% 95%, 80% 90%, 82% 68%, 60% 52%, 90% 52%, 98% 35%, 92% 18%, 80% 6%, 62% 10%) !important;
+}
+@supports (clip-path: url(#tile-clip-butterfly)) {
+  .tile-shape-butterfly,
+  .grid-tile.tile-shape-butterfly,
+  .grid-tile.tile-shape-butterfly img,
+  .grid-tile-skeleton.tile-shape-butterfly {
+    -webkit-clip-path: url(#tile-clip-butterfly) !important;
+    clip-path: url(#tile-clip-butterfly) !important;
+  }
+}
+
+/* Collapsible Sidebars & Canvas Full-Width Transition */
+#left-sidebar, #right-sidebar {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.22s ease;
+}
+
+#left-sidebar.is-collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  margin-left: -320px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  border-right: none !important;
+  overflow: hidden !important;
+}
+
+#right-sidebar.is-collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  margin-right: -420px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  border-left: none !important;
+  overflow: hidden !important;
+}
+
+/* Drag-to-Resize Handles for Left & Right Sidebars */
+.sidebar-resizer-handle {
+  width: 6px;
+  position: relative;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background-color: #f8fafc;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  z-index: 25;
+  user-select: none;
+  touch-action: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.sidebar-resizer-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 24px;
+  border-radius: 9999px;
+  background-color: #cbd5e1;
+  transition: background-color 0.15s ease, height 0.15s ease;
+}
+
+.sidebar-resizer-handle:hover,
+.sidebar-resizer-handle.is-resizing {
+  background-color: #e0e7ff !important;
+  border-color: #818cf8 !important;
+}
+
+.sidebar-resizer-handle:hover::after,
+.sidebar-resizer-handle.is-resizing::after {
+  background-color: #4f46e5 !important;
+  height: 36px;
+}
+
+/* Invisible wider hit area for easy grabbing */
+.sidebar-resizer-handle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -5px;
+  right: -5px;
+  z-index: 10;
+}
