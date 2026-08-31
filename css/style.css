@@ -390,43 +390,26 @@ input[type=range]::-webkit-slider-thumb:hover {
   clip-path: polygon(85% 5%, 58% 20%, 48% 12%, 40% 20%, 28% 28%, 20% 42%, 15% 60%, 12% 82%, 15% 95%, 38% 95%, 55% 88%, 60% 74%, 68% 64%, 84% 54%, 88% 46%, 85% 38%, 72% 32%, 65% 22%, 85% 5%) !important;
 }
 
-/* Heart */
+/* Heart — smooth bezier via SVG clipPath */
 .tile-shape-heart,
 .grid-tile.tile-shape-heart,
 .grid-tile.tile-shape-heart img,
 .grid-tile-skeleton.tile-shape-heart {
   border-radius: 0 !important;
-  -webkit-clip-path: polygon(50% 88%, 35% 72%, 20% 55%, 10% 40%, 8% 28%, 10% 16%, 18% 7%, 30% 5%, 42% 10%, 50% 22%, 58% 10%, 70% 5%, 82% 7%, 90% 16%, 92% 28%, 90% 40%, 80% 55%, 65% 72%) !important;
-  clip-path: polygon(50% 88%, 35% 72%, 20% 55%, 10% 40%, 8% 28%, 10% 16%, 18% 7%, 30% 5%, 42% 10%, 50% 22%, 58% 10%, 70% 5%, 82% 7%, 90% 16%, 92% 28%, 90% 40%, 80% 55%, 65% 72%) !important;
-}
-@supports (clip-path: url(#tile-clip-heart)) {
-  .tile-shape-heart,
-  .grid-tile.tile-shape-heart,
-  .grid-tile.tile-shape-heart img,
-  .grid-tile-skeleton.tile-shape-heart {
-    -webkit-clip-path: url(#tile-clip-heart) !important;
-    clip-path: url(#tile-clip-heart) !important;
-  }
+  -webkit-clip-path: url(#tile-clip-heart) !important;
+  clip-path: url(#tile-clip-heart) !important;
 }
 
-/* Butterfly */
+/* Butterfly — smooth bezier via SVG clipPath */
 .tile-shape-butterfly,
 .grid-tile.tile-shape-butterfly,
 .grid-tile.tile-shape-butterfly img,
 .grid-tile-skeleton.tile-shape-butterfly {
   border-radius: 0 !important;
-  -webkit-clip-path: polygon(50% 25%, 38% 10%, 20% 6%, 8% 18%, 2% 35%, 10% 52%, 40% 52%, 18% 68%, 20% 90%, 35% 95%, 48% 80%, 50% 68%, 52% 80%, 65% 95%, 80% 90%, 82% 68%, 60% 52%, 90% 52%, 98% 35%, 92% 18%, 80% 6%, 62% 10%) !important;
-  clip-path: polygon(50% 25%, 38% 10%, 20% 6%, 8% 18%, 2% 35%, 10% 52%, 40% 52%, 18% 68%, 20% 90%, 35% 95%, 48% 80%, 50% 68%, 52% 80%, 65% 95%, 80% 90%, 82% 68%, 60% 52%, 90% 52%, 98% 35%, 92% 18%, 80% 6%, 62% 10%) !important;
+  -webkit-clip-path: url(#tile-clip-butterfly) !important;
+  clip-path: url(#tile-clip-butterfly) !important;
 }
-@supports (clip-path: url(#tile-clip-butterfly)) {
-  .tile-shape-butterfly,
-  .grid-tile.tile-shape-butterfly,
-  .grid-tile.tile-shape-butterfly img,
-  .grid-tile-skeleton.tile-shape-butterfly {
-    -webkit-clip-path: url(#tile-clip-butterfly) !important;
-    clip-path: url(#tile-clip-butterfly) !important;
-  }
-}
+
 
 /* Collapsible Sidebars & Canvas Full-Width Transition */
 #left-sidebar, #right-sidebar {

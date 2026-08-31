@@ -635,6 +635,123 @@ export class WallpaperGridEngine {
     this.render();
   }
 
+  /**
+   * mergeSlot — merges the selected slot with its neighbors in `direction`.
+   * direction: 'right' (horizontal expand by 1 col) or 'down' (vertical expand by 1 row)
+   * Returns the merged slot index, or null if not possible.
+   */
+  mergeSlot(slotIndex, direction) {
+    slotIndex = parseInt(slotIndex, 10);
+    if (isNaN(slotIndex) || slotIndex < 0 || slotIndex >= this.slots.length) return null;
+    const slot = this.slots[slotIndex];
+    if (!slot) return null;
+
+    // Build 2D spatial map
+    const gridMap = Array.from({ length: this.rows }, () => Array(this.cols).fill(null));
+    this.slots.forEach(s => {
+      for (let r = s.row; r < s.row + s.spanRow; r++) {
+        for (let c = s.col; c < s.col + s.spanCol; c++) {
+          if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) gridMap[r][c] = s;
+        }
+      }
+    });
+
+    if (direction === 'right') {
+      // The merged block would span: same rows as slot, cols from slot.col to slot.col+slot.spanCol
+      const newSpanCol = slot.spanCol + 1;
+      const newEndCol = slot.col + newSpanCol;
+      if (newEndCol > this.cols) return null; // out of bounds
+
+      // All cells in the right-side column strip that need to be absorbed
+      // They must all be 1x1 standard blocks (not hero) or at least contiguous within that column strip
+      const absorbCol = slot.col + slot.spanCol;
+      const slotsToAbsorb = [];
+      for (let r = slot.row; r < slot.row + slot.spanRow; r++) {
+        const neighbor = gridMap[r][absorbCol];
+        if (!neighbor || neighbor.index === slot.index) return null; // gap or self
+        if (!slotsToAbsorb.find(s => s.index === neighbor.index)) {
+          slotsToAbsorb.push(neighbor);
+        }
+      }
+      // Each absorbed slot must fully live within the absorb column strip (no wider spillover)
+      for (const nb of slotsToAbsorb) {
+        if (nb.col < absorbCol || nb.col + nb.spanCol > newEndCol) return null;
+        if (nb.row < slot.row || nb.row + nb.spanRow > slot.row + slot.spanRow) return null;
+      }
+
+      // Keep the image from the first absorbed neighbor
+      const absorbedImg = this.slotImages[slotsToAbsorb[0].index] || this.slotImages[slot.index] || '';
+
+      // Remove absorbed slots from slots array
+      const absorbIndices = new Set(slotsToAbsorb.map(s => s.index));
+      this.slots = this.slots.filter(s => !absorbIndices.has(s.index));
+
+      // Find the slot again after filter
+      const slotRef = this.slots.find(s => s.row === slot.row && s.col === slot.col);
+      if (!slotRef) return null;
+
+      slotRef.spanCol = newSpanCol;
+      if (slotRef.spanRow > 1 || slotRef.spanCol > 1) slotRef.isHero = false;
+
+      // Re-index
+      this.slots.forEach((s, idx) => s.index = idx);
+
+      // Keep original image on merged slot, optionally absorb neighbor image
+      const mergedIdx = this.slots.indexOf(slotRef);
+      this.slotImages = this.slots.map((s, i) => {
+        if (i === mergedIdx) return this.slotImages[slot.index] || absorbedImg;
+        return this.slotImages[s.index] || '';
+      });
+
+      this.refreshSlotImages();
+      this.render();
+      return slotRef.index;
+
+    } else if (direction === 'down') {
+      const newSpanRow = slot.spanRow + 1;
+      const newEndRow = slot.row + newSpanRow;
+      if (newEndRow > this.rows) return null;
+
+      const absorbRow = slot.row + slot.spanRow;
+      const slotsToAbsorb = [];
+      for (let c = slot.col; c < slot.col + slot.spanCol; c++) {
+        const neighbor = gridMap[absorbRow][c];
+        if (!neighbor || neighbor.index === slot.index) return null;
+        if (!slotsToAbsorb.find(s => s.index === neighbor.index)) {
+          slotsToAbsorb.push(neighbor);
+        }
+      }
+      for (const nb of slotsToAbsorb) {
+        if (nb.row < absorbRow || nb.row + nb.spanRow > newEndRow) return null;
+        if (nb.col < slot.col || nb.col + nb.spanCol > slot.col + slot.spanCol) return null;
+      }
+
+      const absorbedImg = this.slotImages[slotsToAbsorb[0].index] || this.slotImages[slot.index] || '';
+      const absorbIndices = new Set(slotsToAbsorb.map(s => s.index));
+      this.slots = this.slots.filter(s => !absorbIndices.has(s.index));
+
+      const slotRef = this.slots.find(s => s.row === slot.row && s.col === slot.col);
+      if (!slotRef) return null;
+
+      slotRef.spanRow = newSpanRow;
+      if (slotRef.spanRow > 1 || slotRef.spanCol > 1) slotRef.isHero = false;
+
+      this.slots.forEach((s, idx) => s.index = idx);
+
+      const mergedIdx = this.slots.indexOf(slotRef);
+      this.slotImages = this.slots.map((s, i) => {
+        if (i === mergedIdx) return this.slotImages[slot.index] || absorbedImg;
+        return this.slotImages[s.index] || '';
+      });
+
+      this.refreshSlotImages();
+      this.render();
+      return slotRef.index;
+    }
+
+    return null;
+  }
+
   moveSlot(slotIndex, direction) {
     slotIndex = parseInt(slotIndex, 10);
     if (isNaN(slotIndex) || slotIndex < 0 || slotIndex >= this.slots.length) return null;

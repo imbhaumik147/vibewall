@@ -244,6 +244,8 @@ class WallpaperApp {
       tileMoveUpBtn: document.getElementById('tile-move-up-btn'),
       tileMoveDownBtn: document.getElementById('tile-move-down-btn'),
       tileMoveRightBtn: document.getElementById('tile-move-right-btn'),
+      tileMergeRightBtn: document.getElementById('tile-merge-right-btn'),
+      tileMergeDownBtn: document.getElementById('tile-merge-down-btn'),
       tileSplitBtn: document.getElementById('tile-split-btn'),
       tileSplitBtnText: document.getElementById('tile-split-btn-text'),
       tileReplaceBtn: document.getElementById('tile-replace-btn'),
@@ -555,6 +557,21 @@ class WallpaperApp {
     }
   }
 
+  mergeSelectedBlock(direction) {
+    if (this.selectedSlotIndex === null || this.selectedSlotIndex === undefined) return;
+    const newIndex = this.engine.mergeSlot(this.selectedSlotIndex, direction);
+    if (newIndex !== null && newIndex !== undefined) {
+      this.selectedSlotIndex = newIndex;
+      this.showTileActionBar(newIndex);
+      const label = direction === 'right' ? 'horizontally' : 'vertically';
+      this.showToast(`Blocks merged ${label}!`, 'success');
+      this.updateHeroStatusUI();
+    } else {
+      const label = direction === 'right' ? 'right' : 'below';
+      this.showToast(`Cannot merge — no compatible block to the ${label}`, 'info');
+    }
+  }
+
   hideTileActionBar() {
     if (this.dom.tileActionBar) {
       this.dom.tileActionBar.classList.add('hidden');
@@ -778,6 +795,22 @@ class WallpaperApp {
         e.preventDefault();
         e.stopPropagation();
         this.moveSelectedBlock('right');
+      });
+    }
+
+    // Floating Tile Action Bar Merge Buttons
+    if (this.dom.tileMergeRightBtn) {
+      this.dom.tileMergeRightBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.mergeSelectedBlock('right');
+      });
+    }
+    if (this.dom.tileMergeDownBtn) {
+      this.dom.tileMergeDownBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.mergeSelectedBlock('down');
       });
     }
 
