@@ -546,61 +546,47 @@ input[type=range]::-webkit-slider-thumb:hover {
 }
 #mobile-sidebar-backdrop.is-visible { display: block; }
 
-/* ---- Studio: Bottom mobile tab bar ---- */
-#mobile-studio-bar {
-  display: none;
-  position: relative;
-  height: 56px;
-  flex-shrink: 0;
-  background: #fff;
-  border-top: 1px solid #e2e8f0;
-  z-index: 70;
-  align-items: stretch;
-}
-.mobile-tab-btn {
-  flex: 1;
+/* ---- Studio: Persistent Left & Right Dock Panels ---- */
+#studio-left-dock {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 35;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  font-size: 10px;
-  font-weight: 700;
-  color: #64748b;
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
-  padding: 0 4px;
-  min-height: 56px;
-  -webkit-tap-highlight-color: transparent;
+  gap: 8px;
+  pointer-events: auto;
 }
-.mobile-tab-btn.is-active {
-  color: #0f172a;
-  background: #f8fafc;
-  border-top: 2px solid #0f172a;
-  margin-top: -1px;
-}
-.mobile-tab-btn svg { flex-shrink: 0; }
 
-#mobile-export-btn {
-  flex: 1.4;
+#studio-right-dock {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 35;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  font-size: 10px;
-  font-weight: 800;
-  color: #fff;
-  background: #0f172a;
-  border: none;
-  cursor: pointer;
-  min-height: 56px;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s ease;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: auto;
 }
-#mobile-export-btn:active { background: #1e293b; }
+
+.studio-dock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.studio-dock-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+}
+.studio-dock-btn:active {
+  transform: scale(0.95);
+}
 
 /* ---- Studio: Mobile breakpoint ---- */
 @media (max-width: 767px) {
@@ -609,13 +595,11 @@ input[type=range]::-webkit-slider-thumb:hover {
 
   #studio-toolbar-center { display: none !important; }
 
-  #mobile-studio-bar { display: flex !important; }
-
   #left-sidebar {
     position: fixed !important;
     top: 56px !important;
     left: 0 !important;
-    bottom: 56px !important;
+    bottom: 0 !important;
     width: min(88vw, 320px) !important;
     min-width: 0 !important;
     max-width: min(88vw, 320px) !important;
@@ -625,7 +609,7 @@ input[type=range]::-webkit-slider-thumb:hover {
     margin: 0 !important;
     border-right: 1px solid #e2e8f0 !important;
     border-right-color: #e2e8f0 !important;
-    box-shadow: 8px 0 40px rgba(15,23,42,0.2) !important;
+    box-shadow: 8px 0 40px rgba(15,23,42,0.25) !important;
     transform: translateX(-110%) !important;
     transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
     overflow: hidden !important;
@@ -644,7 +628,7 @@ input[type=range]::-webkit-slider-thumb:hover {
     position: fixed !important;
     top: 56px !important;
     right: 0 !important;
-    bottom: 56px !important;
+    bottom: 0 !important;
     width: min(92vw, 360px) !important;
     min-width: 0 !important;
     max-width: min(92vw, 360px) !important;
@@ -654,7 +638,7 @@ input[type=range]::-webkit-slider-thumb:hover {
     margin: 0 !important;
     border-left: 1px solid #e2e8f0 !important;
     border-left-color: #e2e8f0 !important;
-    box-shadow: -8px 0 40px rgba(15,23,42,0.2) !important;
+    box-shadow: -8px 0 40px rgba(15,23,42,0.25) !important;
     transform: translateX(110%) !important;
     transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
     overflow: hidden !important;
@@ -670,18 +654,19 @@ input[type=range]::-webkit-slider-thumb:hover {
   }
 
   #tile-action-bar {
-    bottom: 64px !important;
-    left: 8px !important;
-    right: 8px !important;
-    transform: none !important;
-    max-width: none !important;
+    bottom: 16px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    max-width: calc(100vw - 24px) !important;
+    padding: 6px 10px !important;
+    gap: 6px !important;
   }
 
   #toast-container {
-    bottom: 68px !important;
-    right: 8px !important;
-    left: 8px !important;
-    align-items: flex-end;
+    bottom: 16px !important;
+    right: 12px !important;
+    left: auto !important;
   }
 
   #expand-left-btn,

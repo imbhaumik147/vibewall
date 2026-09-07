@@ -121,6 +121,7 @@ export class WallpaperGridEngine {
     
     this.touchDragElement = null;
     this.touchCurrentTarget = null;
+    this.gridDoubled = false;
   }
 
   setDimensions(width, height, cols = null) {
@@ -219,6 +220,7 @@ export class WallpaperGridEngine {
 
   // Calculate layout geometry based on chosen layoutMode and heroCount
   calculateLayout() {
+    this.gridDoubled = false;
     const occupied = Array.from({ length: this.rows }, () => Array(this.cols).fill(false));
 
     // Pre-mark cells outside shape silhouette as occupied so tiles form the chosen shape
@@ -574,50 +576,82 @@ export class WallpaperGridEngine {
     this.render();
   }
 
+  canSubdivideSlot(slotIndex) {
+    if (slotIndex < 0 || slotIndex >= this.slots.length) return false;
+    const slot = this.slots[slotIndex];
+    if (!slot) return false;
+    // In doubled grid, a 1x1 block is already 1 time smaller than selected ratio ("only one times smaller not infinity")
+    if (this.gridDoubled && slot.spanRow <= 1 && slot.spanCol <= 1) return false;
+    return true;
+  }
+
   subdivideSlot(slotIndex) {
     if (slotIndex < 0 || slotIndex >= this.slots.length) return null;
-    const slot = this.slots[slotIndex];
+    let slot = this.slots[slotIndex];
     if (!slot) return null;
 
-    const { row, col, spanRow, spanCol, isHero } = slot;
-    const count = spanRow * spanCol;
-
-    if (spanRow <= 1 && spanCol <= 1 && !isHero) {
-      // Already 1x1 standard block - clear image
-      this.slotImages[slotIndex] = '';
-      this.render();
-      return { count: 1, type: 'clear' };
+    // If it's a standard 1x1 block and grid hasn't been scaled yet, double the grid resolution
+    // so this block CAN be made 1 time smaller by splitting into 4 smaller half-size blocks!
+    if (!this.gridDoubled && slot.spanRow <= 1 && slot.spanCol <= 1) {
+      this.gridDoubled = true;
+      this.cols *= 2;
+      this.rows *= 2;
+      this.slots.forEach(s => {
+        s.row *= 2;
+        s.col *= 2;
+        s.spanRow *= 2;
+        s.spanCol *= 2;
+      });
+      slot = this.slots[slotIndex];
     }
 
-    // Create 1x1 standard replacement slots
+    // If already 1x1 in doubled grid, it is already at minimum size ("only one times smaller not infinity")
+    if (slot.spanRow <= 1 && slot.spanCol <= 1) {
+      return null;
+    }
+
+    const { row, col, spanRow, spanCol, isHero } = slot;
+
+    // If it was a merged block spanning 4+ in either direction, split it into standard 2x2 blocks;
+    // If it is 2x2, split it into four 1x1 smaller blocks!
+    let unitR = 1;
+    let unitC = 1;
+    if (this.gridDoubled && (spanRow > 2 || spanCol > 2) && (spanRow % 2 === 0) && (spanCol % 2 === 0)) {
+      unitR = 2;
+      unitC = 2;
+    }
+
     const replacementSlots = [];
-    for (let r = row; r < row + spanRow; r++) {
-      for (let c = col; c < col + spanCol; c++) {
+    for (let r = row; r < row + spanRow; r += unitR) {
+      for (let c = col; c < col + spanCol; c += unitC) {
         replacementSlots.push({
           isHero: false,
           heroIndex: -1,
           row: r,
           col: c,
-          spanRow: 1,
-          spanCol: 1
+          spanRow: unitR,
+          spanCol: unitC
         });
       }
     }
 
-    // Replace multi-span slot with 1x1 replacement slots
+    const count = replacementSlots.length;
+    if (count <= 1) return null;
+
+    // Replace multi-span slot with replacement slots
     this.slots.splice(slotIndex, 1, ...replacementSlots);
+    this.slots.forEach((s, idx) => s.index = idx);
 
-    // Re-index all slots
-    this.slots.forEach((s, idx) => {
-      s.index = idx;
-    });
-
-    // Preserve existing images across the grid; fill new 1x1 slots nicely
+    // Keep images intact
     const activeImg = this.slotImages[slotIndex] || '';
     const newSlotImages = [...this.slotImages];
     const replImages = replacementSlots.map((_, i) => i === 0 ? activeImg : (this.regularImages[i % Math.max(1, this.regularImages.length)] || ''));
     newSlotImages.splice(slotIndex, 1, ...replImages);
     this.slotImages = newSlotImages;
+
+    if (isHero && this.heroCount > 0) {
+      this.heroCount = Math.max(0, this.heroCount - 1);
+    }
 
     this.render();
     return { count, row, col, spanRow, spanCol, type: 'subdivide' };
@@ -636,11 +670,8 @@ export class WallpaperGridEngine {
   }
 
   /**
-   * mergeSlot — merges the selected slot with neighbors in any direction.
-   * direction: 'right', 'down', 'left', 'up', or 'banner'
-   * Automatically slices any multi-span neighbor that partially overlaps the target rectangle,
-   * allowing unlimited repeated merges and destroys into banners or custom blocks!
-   * Returns the merged slot index, or null if out of bounds.
+   * mergeSlot — merges the selected slot with neighbors in direction: 'right', 'down', or 'banner'
+   * Allows merging 2, 3, 4, or whatever number of blocks vertically or horizontally!
    */
   mergeSlot(slotIndex, direction) {
     slotIndex = parseInt(slotIndex, 10);
@@ -648,19 +679,35 @@ export class WallpaperGridEngine {
     const slot = this.slots[slotIndex];
     if (!slot) return null;
 
+    // Build 2D spatial grid map
+    const gridMap = Array.from({ length: this.rows }, () => Array(this.cols).fill(null));
+    this.slots.forEach(s => {
+      for (let r = s.row; r < s.row + s.spanRow; r++) {
+        for (let c = s.col; c < s.col + s.spanCol; c++) {
+          if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) gridMap[r][c] = s;
+        }
+      }
+    });
+
     let targetR1 = slot.row;
     let targetR2 = slot.row + slot.spanRow;
     let targetC1 = slot.col;
     let targetC2 = slot.col + slot.spanCol;
 
     if (direction === 'right') {
-      targetC2 += 1;
-    } else if (direction === 'left') {
-      targetC1 -= 1;
+      const neighborCol = slot.col + slot.spanCol;
+      if (neighborCol >= this.cols) return null;
+      let expandBy = 1;
+      const neighbor = gridMap[slot.row] ? gridMap[slot.row][neighborCol] : null;
+      if (neighbor && neighbor.spanCol) expandBy = neighbor.spanCol;
+      targetC2 += expandBy;
     } else if (direction === 'down') {
-      targetR2 += 1;
-    } else if (direction === 'up') {
-      targetR1 -= 1;
+      const neighborRow = slot.row + slot.spanRow;
+      if (neighborRow >= this.rows) return null;
+      let expandBy = 1;
+      const neighbor = gridMap[neighborRow] ? gridMap[neighborRow][slot.col] : null;
+      if (neighbor && neighbor.spanRow) expandBy = neighbor.spanRow;
+      targetR2 += expandBy;
     } else if (direction === 'banner') {
       targetC1 = 0;
       targetC2 = this.cols;
@@ -670,7 +717,7 @@ export class WallpaperGridEngine {
 
     // Bounds check
     if (targetR1 < 0 || targetR2 > this.rows || targetC1 < 0 || targetC2 > this.cols) {
-      return null; // Hit outer canvas boundary
+      return null;
     }
 
     // Identify all slots (excluding the active slot) that intersect the target rectangle
@@ -685,15 +732,13 @@ export class WallpaperGridEngine {
       }
     });
 
-    // If an intersecting slot has cells outside the target rectangle,
-    // decompose it into 1x1 cells so the remnant cells outside remain preserved.
+    // Decompose any intersecting slot that spills outside the target rectangle
     const remnantSlots = [];
     intersectingSlots.forEach(other => {
       const oR2 = other.row + other.spanRow;
       const oC2 = other.col + other.spanCol;
       const fullyInside = other.row >= targetR1 && oR2 <= targetR2 && other.col >= targetC1 && oC2 <= targetC2;
       if (!fullyInside) {
-        // Break other into 1x1 blocks for any cell OUTSIDE the target rectangle
         const otherImg = this.slotImages[other.index] || '';
         for (let r = other.row; r < oR2; r++) {
           for (let c = other.col; c < oC2; c++) {
@@ -720,6 +765,9 @@ export class WallpaperGridEngine {
     // Filter out all absorbed slots
     const preservedSlots = this.slots.filter(s => !removeSet.has(s));
 
+    // Capture current images before modifying slots array
+    const oldSlotImages = [...this.slotImages];
+
     // Update active slot dimensions
     slot.row = targetR1;
     slot.col = targetC1;
@@ -737,24 +785,24 @@ export class WallpaperGridEngine {
       heroIndex: -1
     }))];
 
-    // Re-index slots
-    this.slots.forEach((s, idx) => s.index = idx);
-
     // Build matching slotImages array
     const newSlotImages = [];
     this.slots.forEach(s => {
       if (s === slot) {
         newSlotImages.push(activeImg);
       } else {
-        const foundRemnant = remnantSlots.find(r => r.row === s.row && r.col === s.col && s.spanRow === 1 && s.spanCol === 1);
+        const foundRemnant = remnantSlots.find(r => r.row === s.row && r.col === s.col);
         if (foundRemnant) {
           newSlotImages.push(foundRemnant.img);
         } else {
-          newSlotImages.push(this.slotImages[s.index] || '');
+          newSlotImages.push(oldSlotImages[s.index] || '');
         }
       }
     });
     this.slotImages = newSlotImages;
+
+    // Re-index slots
+    this.slots.forEach((s, idx) => s.index = idx);
 
     this.render();
     return slot.index;

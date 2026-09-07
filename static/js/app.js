@@ -255,13 +255,12 @@ class WallpaperApp {
       tileClearBtn: document.getElementById('tile-clear-btn'),
       tileActionCloseBtn: document.getElementById('tile-action-close-btn'),
 
-      // Mobile Bottom Tab Bar & Backdrop
-      mobileStudioBar: document.getElementById('mobile-studio-bar'),
-      mobileToolsTab: document.getElementById('mobile-tools-tab'),
-      mobilePhotosTab: document.getElementById('mobile-photos-tab'),
-      mobileShuffleTab: document.getElementById('mobile-shuffle-tab'),
-      mobileExportBtn: document.getElementById('mobile-export-btn'),
-      mobileBezelTab: document.getElementById('mobile-bezel-tab'),
+      // Persistent Left & Right Studio Docks & Backdrop
+      dockLeftToolsBtn: document.getElementById('dock-left-tools-btn'),
+      dockRightPhotosBtn: document.getElementById('dock-right-photos-btn'),
+      dockRightShuffleBtn: document.getElementById('dock-right-shuffle-btn'),
+      dockRightBezelBtn: document.getElementById('dock-right-bezel-btn'),
+      dockRightExportBtn: document.getElementById('dock-right-export-btn'),
       mobileSidebarBackdrop: document.getElementById('mobile-sidebar-backdrop')
     };
   }
@@ -517,29 +516,34 @@ class WallpaperApp {
     if (!slot) return;
 
     const count = slot.spanRow * slot.spanCol;
+    const canDestroy = this.engine.canSubdivideSlot(slotIndex);
+
     if (slot.isHero) {
       this.dom.tileActionTitle.innerText = `Hero Block (${slot.spanCol}×${slot.spanRow})`;
       this.dom.tileActionIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
       if (this.dom.tileSplitBtnText) {
-        this.dom.tileSplitBtnText.innerText = `Remove Hero & Fit ${count} Squares`;
+        this.dom.tileSplitBtnText.innerText = `Destroy Hero & Fit ${count} Squares`;
       }
       if (this.dom.tileSplitBtn) {
         this.dom.tileSplitBtn.style.display = 'inline-flex';
       }
     } else if (slot.spanRow > 1 || slot.spanCol > 1) {
-      this.dom.tileActionTitle.innerText = `Spanning Block (${slot.spanCol}×${slot.spanRow})`;
+      this.dom.tileActionTitle.innerText = `Merged Block (${slot.spanCol}×${slot.spanRow})`;
       this.dom.tileActionIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-indigo-400 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
       if (this.dom.tileSplitBtnText) {
-        this.dom.tileSplitBtnText.innerText = `Split into ${count} Square Blocks`;
+        this.dom.tileSplitBtnText.innerText = `Destroy & Split into Blocks`;
       }
       if (this.dom.tileSplitBtn) {
         this.dom.tileSplitBtn.style.display = 'inline-flex';
       }
     } else {
-      this.dom.tileActionTitle.innerText = `Standard Block (1×1)`;
+      this.dom.tileActionTitle.innerText = `Standard Block`;
       this.dom.tileActionIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-slate-400 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/></svg>`;
+      if (this.dom.tileSplitBtnText) {
+        this.dom.tileSplitBtnText.innerText = `Make 1× Smaller (Split into 4)`;
+      }
       if (this.dom.tileSplitBtn) {
-        this.dom.tileSplitBtn.style.display = 'none';
+        this.dom.tileSplitBtn.style.display = canDestroy ? 'inline-flex' : 'none';
       }
     }
 
@@ -883,7 +887,6 @@ class WallpaperApp {
             this.clearSelection();
             this.updateHeroStatusUI();
             this.updateUploadTray();
-            this.engine.setImages(this.rawUploadedUrls, this.rawHeroUrls);
           }
         }
       });
@@ -1374,34 +1377,30 @@ class WallpaperApp {
       }
     });
 
-    // Mobile Studio Bottom Bar & Backdrop Handlers
-    if (this.dom.mobileToolsTab) {
-      this.dom.mobileToolsTab.addEventListener('click', (e) => {
+    // Studio Left Dock: Tools
+    if (this.dom.dockLeftToolsBtn) {
+      this.dom.dockLeftToolsBtn.addEventListener('click', (e) => {
         e.preventDefault();
         this.toggleLeftSidebar();
       });
     }
-    if (this.dom.mobilePhotosTab) {
-      this.dom.mobilePhotosTab.addEventListener('click', (e) => {
+
+    // Studio Right Dock: Photos, Shuffle, Bezel, Export
+    if (this.dom.dockRightPhotosBtn) {
+      this.dom.dockRightPhotosBtn.addEventListener('click', (e) => {
         e.preventDefault();
         this.toggleRightSidebar();
       });
     }
-    if (this.dom.mobileShuffleTab) {
-      this.dom.mobileShuffleTab.addEventListener('click', (e) => {
+    if (this.dom.dockRightShuffleBtn) {
+      this.dom.dockRightShuffleBtn.addEventListener('click', (e) => {
         e.preventDefault();
         this.engine.shuffle();
         this.showToast('Normal covers shuffled! (Heroes locked)', 'info');
       });
     }
-    if (this.dom.mobileExportBtn) {
-      this.dom.mobileExportBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.openExportModal();
-      });
-    }
-    if (this.dom.mobileBezelTab) {
-      this.dom.mobileBezelTab.addEventListener('click', (e) => {
+    if (this.dom.dockRightBezelBtn) {
+      this.dom.dockRightBezelBtn.addEventListener('click', (e) => {
         e.preventDefault();
         this.showDeviceFrame = !this.showDeviceFrame;
         if (this.dom.toggleFrameBtn) {
@@ -1411,6 +1410,13 @@ class WallpaperApp {
         this.showToast(this.showDeviceFrame ? 'Device frame enabled' : 'Device frame hidden', 'info');
       });
     }
+    if (this.dom.dockRightExportBtn) {
+      this.dom.dockRightExportBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openExportModal();
+      });
+    }
+
     if (this.dom.mobileSidebarBackdrop) {
       this.dom.mobileSidebarBackdrop.addEventListener('click', () => {
         this.toggleLeftSidebar(false);
@@ -1544,12 +1550,14 @@ class WallpaperApp {
 
       if (shouldOpen && this.dom.rightSidebar) {
         this.dom.rightSidebar.classList.remove('mobile-open');
-        if (this.dom.mobilePhotosTab) this.dom.mobilePhotosTab.classList.remove('is-active');
+        if (this.dom.dockRightPhotosBtn) this.dom.dockRightPhotosBtn.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-300');
       }
 
       this.dom.leftSidebar.classList.toggle('mobile-open', shouldOpen);
-      if (this.dom.mobileToolsTab) {
-        this.dom.mobileToolsTab.classList.toggle('is-active', shouldOpen);
+      if (this.dom.dockLeftToolsBtn) {
+        this.dom.dockLeftToolsBtn.classList.toggle('bg-indigo-50', shouldOpen);
+        this.dom.dockLeftToolsBtn.classList.toggle('text-indigo-600', shouldOpen);
+        this.dom.dockLeftToolsBtn.classList.toggle('border-indigo-300', shouldOpen);
       }
       if (this.dom.mobileSidebarBackdrop) {
         this.dom.mobileSidebarBackdrop.classList.toggle('is-visible', shouldOpen);
@@ -1570,6 +1578,11 @@ class WallpaperApp {
       this.dom.toggleLeftSidebarBtn.classList.toggle('bg-white', !shouldCollapse);
       this.dom.toggleLeftSidebarBtn.classList.toggle('shadow-sm', !shouldCollapse);
     }
+    if (this.dom.dockLeftToolsBtn) {
+      this.dom.dockLeftToolsBtn.classList.toggle('bg-indigo-50', !shouldCollapse);
+      this.dom.dockLeftToolsBtn.classList.toggle('text-indigo-600', !shouldCollapse);
+      this.dom.dockLeftToolsBtn.classList.toggle('border-indigo-300', !shouldCollapse);
+    }
     this.animateCanvasFit(350);
   }
 
@@ -1583,12 +1596,14 @@ class WallpaperApp {
 
       if (shouldOpen && this.dom.leftSidebar) {
         this.dom.leftSidebar.classList.remove('mobile-open');
-        if (this.dom.mobileToolsTab) this.dom.mobileToolsTab.classList.remove('is-active');
+        if (this.dom.dockLeftToolsBtn) this.dom.dockLeftToolsBtn.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-300');
       }
 
       this.dom.rightSidebar.classList.toggle('mobile-open', shouldOpen);
-      if (this.dom.mobilePhotosTab) {
-        this.dom.mobilePhotosTab.classList.toggle('is-active', shouldOpen);
+      if (this.dom.dockRightPhotosBtn) {
+        this.dom.dockRightPhotosBtn.classList.toggle('bg-indigo-50', shouldOpen);
+        this.dom.dockRightPhotosBtn.classList.toggle('text-indigo-600', shouldOpen);
+        this.dom.dockRightPhotosBtn.classList.toggle('border-indigo-300', shouldOpen);
       }
       if (this.dom.mobileSidebarBackdrop) {
         this.dom.mobileSidebarBackdrop.classList.toggle('is-visible', shouldOpen);
@@ -1608,6 +1623,11 @@ class WallpaperApp {
     if (this.dom.toggleRightSidebarBtn) {
       this.dom.toggleRightSidebarBtn.classList.toggle('bg-white', !shouldCollapse);
       this.dom.toggleRightSidebarBtn.classList.toggle('shadow-sm', !shouldCollapse);
+    }
+    if (this.dom.dockRightPhotosBtn) {
+      this.dom.dockRightPhotosBtn.classList.toggle('bg-indigo-50', !shouldCollapse);
+      this.dom.dockRightPhotosBtn.classList.toggle('text-indigo-600', !shouldCollapse);
+      this.dom.dockRightPhotosBtn.classList.toggle('border-indigo-300', !shouldCollapse);
     }
     this.animateCanvasFit(350);
   }

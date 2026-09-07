@@ -666,17 +666,31 @@
     <!-- CENTER STAGE: Stable Responsive Wallpaper Canvas -->
     <main class="flex-1 flex flex-col min-w-0 bg-slate-100 relative overflow-hidden">
       
-      <!-- Floating Expand Left Sidebar Button (when collapsed) -->
-      <button id="expand-left-btn" class="hidden absolute top-3 left-3 z-30 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 shadow-md hover:bg-white text-slate-700 hover:text-slate-900 flex items-center gap-1.5 text-xs font-bold transition-all hover:scale-105" title="Expand Left Sidebar (Tools)">
-        <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
-        <span>Tools</span>
-      </button>
+      <!-- Studio Left Edge Panel: Navigation & Tools (Never hides when sidebar is closed) -->
+      <div id="studio-left-dock" class="absolute top-4 left-4 z-30 flex flex-col gap-2 pointer-events-auto">
+        <button id="dock-left-tools-btn" class="studio-dock-btn flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-md hover:bg-white text-slate-800 hover:text-indigo-600 font-bold text-xs transition-all hover:scale-105 active:scale-95" title="Toggle Left Sidebar (Layout, Styles &amp; Presets)">
+          <svg class="w-4 h-4 text-indigo-600 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+          <span class="text-xs font-bold pointer-events-none">Tools</span>
+        </button>
+      </div>
 
-      <!-- Floating Expand Right Sidebar Button (when collapsed) -->
-      <button id="expand-right-btn" class="hidden absolute top-3 right-3 z-30 px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 shadow-md hover:bg-white text-slate-700 hover:text-slate-900 flex items-center gap-1.5 text-xs font-bold transition-all hover:scale-105" title="Expand Right Sidebar (Photos)">
-        <span>Photos</span>
-        <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
-      </button>
+      <!-- Studio Right Edge Panel: Photos, Shuffle, Bezel & Export (Never hides when sidebar is closed) -->
+      <div id="studio-right-dock" class="absolute top-4 right-4 z-30 flex flex-col items-end gap-2 pointer-events-auto">
+        <button id="dock-right-photos-btn" class="studio-dock-btn flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-md hover:bg-white text-slate-800 hover:text-indigo-600 font-bold text-xs transition-all hover:scale-105 active:scale-95" title="Toggle Right Sidebar (Photos Gallery)">
+          <span class="text-xs font-bold pointer-events-none">Photos</span>
+          <svg class="w-4 h-4 text-indigo-600 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        </button>
+        <button id="dock-right-shuffle-btn" class="studio-dock-btn flex items-center justify-center p-2 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-sm hover:bg-white text-slate-700 hover:text-indigo-600 transition-all hover:scale-105 active:scale-95" title="Shuffle Images">
+          <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+        </button>
+        <button id="dock-right-bezel-btn" class="studio-dock-btn flex items-center justify-center p-2 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-sm hover:bg-white text-slate-700 hover:text-indigo-600 transition-all hover:scale-105 active:scale-95" title="Toggle Phone Mockup Bezel">
+          <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="3"/><circle cx="12" cy="18" r="1"/></svg>
+        </button>
+        <button id="dock-right-export-btn" class="studio-dock-btn flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-900 text-white shadow-lg hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 text-xs font-bold" title="Export Wallpaper">
+          <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span class="text-xs font-bold pointer-events-none">Export</span>
+        </button>
+      </div>
 
       <!-- Canvas Viewport with Clean Studio Background -->
       <div id="canvas-wrapper" class="canvas-viewport flex-1 flex items-center justify-center p-3 overflow-hidden relative">
@@ -725,17 +739,21 @@
           <!-- Merge Controls -->
           <div class="flex items-center gap-0.5 px-1 py-0.5 bg-slate-800/80 rounded-xl border border-slate-700/60 flex-shrink-0">
             <span class="text-[9px] font-bold text-slate-400 px-1 uppercase tracking-wider hidden sm:inline">Merge</span>
-            <button id="tile-merge-left-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-110 active:scale-95" title="Merge Left">
-              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            <button id="tile-merge-right-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-110 active:scale-95" title="Merge block with the one to the right (expand horizontally)">
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="2" y="6" width="8" height="12" rx="1.5"/>
+                <rect x="14" y="6" width="8" height="12" rx="1.5"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 12h4"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 10l2 2-2 2"/>
+              </svg>
             </button>
-            <button id="tile-merge-right-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-110 active:scale-95" title="Merge Right (expand horizontally)">
-              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-            </button>
-            <button id="tile-merge-up-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-110 active:scale-95" title="Merge Up">
-              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
-            </button>
-            <button id="tile-merge-down-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-110 active:scale-95" title="Merge Down (expand vertically)">
-              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            <button id="tile-merge-down-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-110 active:scale-95" title="Merge block with the one below (expand vertically)">
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="6" y="2" width="12" height="8" rx="1.5"/>
+                <rect x="6" y="14" width="12" height="8" rx="1.5"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v4"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 13l2 2 2-2"/>
+              </svg>
             </button>
             <button id="tile-merge-banner-btn" class="p-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 transition-all hover:scale-110 active:scale-95 text-[10px] font-bold px-2 flex items-center gap-1" title="Merge into Full Width Banner">
               <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="1.5"/></svg>
@@ -841,39 +859,6 @@
 
     </aside>
 
-  </div>
-
-  <!-- Mobile Bottom Tab Bar (shown only on mobile via CSS) -->
-  <div id="mobile-studio-bar">
-    <!-- Left: Tools (opens left sidebar drawer) -->
-    <button id="mobile-tools-tab" class="mobile-tab-btn is-active" aria-label="Open Tools panel">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
-      <span>Tools</span>
-    </button>
-
-    <!-- Shuffle shortcut -->
-    <button id="mobile-shuffle-tab" class="mobile-tab-btn" aria-label="Shuffle images" title="Shuffle">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
-      <span>Shuffle</span>
-    </button>
-
-    <!-- Center: Export -->
-    <button id="mobile-export-btn" aria-label="Export wallpaper">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-      <span>Export</span>
-    </button>
-
-    <!-- Bezel toggle -->
-    <button id="mobile-bezel-tab" class="mobile-tab-btn" aria-label="Toggle device bezel" title="Bezel">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="3"/><circle cx="12" cy="18" r="1"/></svg>
-      <span>Bezel</span>
-    </button>
-
-    <!-- Right: Photos (opens right sidebar drawer) -->
-    <button id="mobile-photos-tab" class="mobile-tab-btn" aria-label="Open Photos panel">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-      <span>Photos</span>
-    </button>
   </div>
 
   <!-- Export Modal -->
