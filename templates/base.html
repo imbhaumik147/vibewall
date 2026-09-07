@@ -3,7 +3,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="google0258ad434ea15a83">
   <title>{% block title %}VibeWall - Universal Aesthetic Collage & Wallpaper Creator{% endblock %}</title>
   
   <!-- Tailwind CSS CDN -->
@@ -39,46 +40,113 @@
 
   {% block header %}
   <!-- Top Navigation Header -->
-  <header class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 px-4 md:px-8 flex items-center justify-between z-40 shadow-sm">
+  <header class="h-14 bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 px-4 md:px-8 flex items-center justify-between z-40 shadow-sm">
+
     <!-- Brand Logo -->
-    <a href="{% url 'home' %}" class="flex items-center gap-3 group">
-      <div class="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center shadow-sm text-white group-hover:scale-105 transition-transform">
+    <a href="{% url 'home' %}" class="flex items-center gap-2.5 group flex-shrink-0 min-w-0">
+      <div class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center shadow-sm text-white group-hover:scale-105 transition-transform flex-shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="8" rx="1"/><rect x="14" y="13" width="7" height="8" rx="1"/></svg>
       </div>
-      <div>
-        <h1 class="text-base font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
-          VibeWall
-        </h1>
-        <p class="text-[10px] text-slate-500 font-medium">Aesthetic Photo & Wallpaper Creator</p>
+      <div class="hidden sm:block min-w-0">
+        <h1 class="text-sm font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors leading-none">VibeWall</h1>
+        <p class="text-[9px] text-slate-500 font-medium">Aesthetic Wallpaper Creator</p>
       </div>
     </a>
 
-    <!-- Navigation Links -->
-    <nav class="flex items-center gap-1 sm:gap-2">
+    <!-- Desktop Navigation -->
+    <nav class="hidden md:flex items-center gap-1">
       <a href="{% url 'home' %}" class="px-3 py-1.5 rounded-xl text-xs font-bold {% if active_page == 'home' %}text-slate-900 bg-slate-100{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-100{% endif %} flex items-center gap-1.5 transition-colors">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         <span>Home</span>
       </a>
-      <a href="{% url 'home' %}#templates" class="hidden sm:inline-flex px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">
-        <span>Templates</span>
-      </a>
-      <a href="{% url 'home' %}#how-it-works" class="hidden md:inline-flex px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">
-        <span>How to Use</span>
-      </a>
+      <a href="{% url 'home' %}#templates" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">Templates</a>
+      <a href="{% url 'home' %}#how-it-works" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">How to Use</a>
       <a href="{% url 'about' %}" class="px-3 py-1.5 rounded-xl text-xs font-semibold {% if active_page == 'about' %}text-slate-900 bg-slate-100{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-100{% endif %} transition-colors flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span>About</span>
       </a>
-      <a href="{{ github_repo_url|default:'https://github.com/imbhaumik147/vibewall' }}" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:border-slate-900 border border-slate-200 items-center gap-1.5 shadow-sm transition-all">
+      <a href="{{ github_repo_url|default:'https://github.com/imbhaumik147/vibewall' }}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:border-slate-900 border border-slate-200 flex items-center gap-1.5 shadow-sm transition-all">
         <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
         <span>GitHub</span>
       </a>
-      <a href="{% url 'studio' %}" class="ml-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md flex items-center gap-1.5 transition-all active:scale-95">
-        <span>Open Studio</span>
+    </nav>
+
+    <!-- Right: CTA + Hamburger -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <a href="{% url 'studio' %}" class="px-3 sm:px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md flex items-center gap-1.5 transition-all active:scale-95">
+        <span class="hidden sm:inline">Open Studio</span>
+        <span class="sm:hidden">Studio</span>
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
       </a>
-    </nav>
+      <!-- Hamburger: mobile only -->
+      <button id="mobile-nav-toggle" class="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-[5px] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-colors flex-shrink-0" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav-overlay">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
+    </div>
   </header>
+
+  <!-- Mobile Nav Overlay (full-screen slide-in from right) -->
+  <div id="mobile-nav-overlay" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <!-- Header row -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
+      <a href="{% url 'home' %}" class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="8" rx="1"/><rect x="14" y="13" width="7" height="8" rx="1"/></svg>
+        </div>
+        <span class="font-black text-slate-900 text-base tracking-tight">VibeWall</span>
+      </a>
+      <button id="mobile-nav-close" class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors" aria-label="Close menu">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <!-- Nav links -->
+    <nav class="flex flex-col p-4 gap-1 flex-1">
+      <a href="{% url 'home' %}" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl {% if active_page == 'home' %}bg-slate-900 text-white{% else %}text-slate-700 hover:bg-slate-100{% endif %} font-bold text-sm transition-colors">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Home
+      </a>
+      <a href="{% url 'home' %}#templates" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-700 hover:bg-slate-100 font-semibold text-sm transition-colors">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+        Templates
+      </a>
+      <a href="{% url 'home' %}#how-it-works" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-700 hover:bg-slate-100 font-semibold text-sm transition-colors">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        How to Use
+      </a>
+      <a href="{% url 'about' %}" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl {% if active_page == 'about' %}bg-slate-900 text-white{% else %}text-slate-700 hover:bg-slate-100{% endif %} font-semibold text-sm transition-colors">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        About
+      </a>
+      <a href="{{ github_repo_url|default:'https://github.com/imbhaumik147/vibewall' }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-slate-700 hover:bg-slate-100 font-semibold text-sm transition-colors">
+        <svg class="w-5 h-5 flex-shrink-0 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <div class="mt-auto pt-4 border-t border-slate-100">
+        <a href="{% url 'studio' %}" class="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-slate-900 text-white font-bold text-sm transition-all active:scale-95">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="8" rx="1"/><rect x="14" y="13" width="7" height="8" rx="1"/></svg>
+          Open Creator Studio
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Mobile nav script -->
+  <script>
+    (function () {
+      var toggle = document.getElementById('mobile-nav-toggle');
+      var overlay = document.getElementById('mobile-nav-overlay');
+      var closeBtn = document.getElementById('mobile-nav-close');
+      if (!toggle || !overlay) return;
+      function openNav() { overlay.classList.add('is-open'); toggle.classList.add('nav-open'); toggle.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
+      function closeNav() { overlay.classList.remove('is-open'); toggle.classList.remove('nav-open'); toggle.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+      toggle.addEventListener('click', function(){ overlay.classList.contains('is-open') ? closeNav() : openNav(); });
+      if (closeBtn) closeBtn.addEventListener('click', closeNav);
+      overlay.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeNav); });
+      document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeNav(); });
+    })();
+  </script>
   {% endblock %}
 
   {% block content %}{% endblock %}

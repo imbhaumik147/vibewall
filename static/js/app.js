@@ -244,13 +244,25 @@ class WallpaperApp {
       tileMoveUpBtn: document.getElementById('tile-move-up-btn'),
       tileMoveDownBtn: document.getElementById('tile-move-down-btn'),
       tileMoveRightBtn: document.getElementById('tile-move-right-btn'),
+      tileMergeLeftBtn: document.getElementById('tile-merge-left-btn'),
       tileMergeRightBtn: document.getElementById('tile-merge-right-btn'),
+      tileMergeUpBtn: document.getElementById('tile-merge-up-btn'),
       tileMergeDownBtn: document.getElementById('tile-merge-down-btn'),
+      tileMergeBannerBtn: document.getElementById('tile-merge-banner-btn'),
       tileSplitBtn: document.getElementById('tile-split-btn'),
       tileSplitBtnText: document.getElementById('tile-split-btn-text'),
       tileReplaceBtn: document.getElementById('tile-replace-btn'),
       tileClearBtn: document.getElementById('tile-clear-btn'),
-      tileActionCloseBtn: document.getElementById('tile-action-close-btn')
+      tileActionCloseBtn: document.getElementById('tile-action-close-btn'),
+
+      // Mobile Bottom Tab Bar & Backdrop
+      mobileStudioBar: document.getElementById('mobile-studio-bar'),
+      mobileToolsTab: document.getElementById('mobile-tools-tab'),
+      mobilePhotosTab: document.getElementById('mobile-photos-tab'),
+      mobileShuffleTab: document.getElementById('mobile-shuffle-tab'),
+      mobileExportBtn: document.getElementById('mobile-export-btn'),
+      mobileBezelTab: document.getElementById('mobile-bezel-tab'),
+      mobileSidebarBackdrop: document.getElementById('mobile-sidebar-backdrop')
     };
   }
 
@@ -563,12 +575,17 @@ class WallpaperApp {
     if (newIndex !== null && newIndex !== undefined) {
       this.selectedSlotIndex = newIndex;
       this.showTileActionBar(newIndex);
-      const label = direction === 'right' ? 'horizontally' : 'vertically';
-      this.showToast(`Blocks merged ${label}!`, 'success');
+      let label = direction;
+      if (direction === 'banner') label = 'into full-width banner';
+      else if (direction === 'right') label = 'to the right';
+      else if (direction === 'left') label = 'to the left';
+      else if (direction === 'down') label = 'downward';
+      else if (direction === 'up') label = 'upward';
+      this.showToast(`Merged ${label}!`, 'success');
       this.updateHeroStatusUI();
+      this.updateUploadTray();
     } else {
-      const label = direction === 'right' ? 'right' : 'below';
-      this.showToast(`Cannot merge — no compatible block to the ${label}`, 'info');
+      this.showToast(`Cannot merge ${direction} — edge of grid reached`, 'info');
     }
   }
 
@@ -709,6 +726,23 @@ class WallpaperApp {
 
   updateHeroStatusUI() {
     this.dom.heroAssignedCount.innerText = `${this.heroImages.length} selected`;
+
+    // Keep left sidebar hero count badge + buttons in sync with engine's actual heroCount
+    const engineCount = this.engine.heroCount;
+    if (this.dom.activeHeroesCountBadge) {
+      this.dom.activeHeroesCountBadge.innerText = `${engineCount} ${engineCount === 1 ? 'Hero' : 'Heroes'}`;
+    }
+    if (this.dom.customHeroInput) {
+      this.dom.customHeroInput.value = engineCount;
+    }
+    if (this.dom.heroNumBtns) {
+      this.dom.heroNumBtns.forEach(btn => {
+        const bCount = parseInt(btn.dataset.count, 10);
+        btn.className = (bCount === engineCount)
+          ? 'hero-num-btn active p-1.5 rounded-lg border border-slate-900 bg-slate-900 text-white text-center transition-all'
+          : 'hero-num-btn p-1.5 rounded-lg border border-slate-200 bg-white hover:border-slate-900 text-slate-700 text-center transition-all';
+      });
+    }
   }
 
   bindEvents() {
@@ -733,16 +767,19 @@ class WallpaperApp {
           if (slot && (slot.isHero || slot.spanRow > 1 || slot.spanCol > 1)) {
             const res = this.engine.subdivideSlot(this.selectedSlotIndex);
             if (res) {
-              this.showToast(`Removed block and fitted ${res.count} normal square blocks in its place!`, 'success');
+              this.showToast(`Block destroyed — fitted ${res.count} square${res.count > 1 ? 's' : ''} in its place!`, 'success');
               this.hideTileActionBar();
               this.clearSelection();
               this.updateHeroStatusUI();
+              this.updateUploadTray();
+              this.engine.setImages(this.rawUploadedUrls, this.rawHeroUrls);
             }
           } else if (this.selectedSlotIndex !== null) {
             this.engine.clearSlotImage(this.selectedSlotIndex);
             this.showToast('Photo cleared from block', 'info');
             this.hideTileActionBar();
             this.clearSelection();
+            this.updateUploadTray();
           }
         }
       } else if (e.key === 'ArrowUp') {
@@ -799,11 +836,25 @@ class WallpaperApp {
     }
 
     // Floating Tile Action Bar Merge Buttons
+    if (this.dom.tileMergeLeftBtn) {
+      this.dom.tileMergeLeftBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.mergeSelectedBlock('left');
+      });
+    }
     if (this.dom.tileMergeRightBtn) {
       this.dom.tileMergeRightBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         this.mergeSelectedBlock('right');
+      });
+    }
+    if (this.dom.tileMergeUpBtn) {
+      this.dom.tileMergeUpBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.mergeSelectedBlock('up');
       });
     }
     if (this.dom.tileMergeDownBtn) {
@@ -813,6 +864,13 @@ class WallpaperApp {
         this.mergeSelectedBlock('down');
       });
     }
+    if (this.dom.tileMergeBannerBtn) {
+      this.dom.tileMergeBannerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.mergeSelectedBlock('banner');
+      });
+    }
 
     // Floating Tile Action Bar Button Events
     if (this.dom.tileSplitBtn) {
@@ -820,10 +878,12 @@ class WallpaperApp {
         if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
           const res = this.engine.subdivideSlot(this.selectedSlotIndex);
           if (res) {
-            this.showToast(`Removed block and fitted ${res.count} normal square blocks in its place!`, 'success');
+            this.showToast(`Block destroyed — fitted ${res.count} square${res.count > 1 ? 's' : ''} in its place!`, 'success');
             this.hideTileActionBar();
             this.clearSelection();
             this.updateHeroStatusUI();
+            this.updateUploadTray();
+            this.engine.setImages(this.rawUploadedUrls, this.rawHeroUrls);
           }
         }
       });
@@ -845,6 +905,7 @@ class WallpaperApp {
           this.showToast('Photo cleared from block', 'info');
           this.hideTileActionBar();
           this.clearSelection();
+          this.updateUploadTray();
         }
       });
     }
@@ -1313,6 +1374,50 @@ class WallpaperApp {
       }
     });
 
+    // Mobile Studio Bottom Bar & Backdrop Handlers
+    if (this.dom.mobileToolsTab) {
+      this.dom.mobileToolsTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.toggleLeftSidebar();
+      });
+    }
+    if (this.dom.mobilePhotosTab) {
+      this.dom.mobilePhotosTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.toggleRightSidebar();
+      });
+    }
+    if (this.dom.mobileShuffleTab) {
+      this.dom.mobileShuffleTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.engine.shuffle();
+        this.showToast('Normal covers shuffled! (Heroes locked)', 'info');
+      });
+    }
+    if (this.dom.mobileExportBtn) {
+      this.dom.mobileExportBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openExportModal();
+      });
+    }
+    if (this.dom.mobileBezelTab) {
+      this.dom.mobileBezelTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.showDeviceFrame = !this.showDeviceFrame;
+        if (this.dom.toggleFrameBtn) {
+          this.dom.toggleFrameBtn.classList.toggle('bg-slate-200', this.showDeviceFrame);
+        }
+        this.updateCanvasAspectBox();
+        this.showToast(this.showDeviceFrame ? 'Device frame enabled' : 'Device frame hidden', 'info');
+      });
+    }
+    if (this.dom.mobileSidebarBackdrop) {
+      this.dom.mobileSidebarBackdrop.addEventListener('click', () => {
+        this.toggleLeftSidebar(false);
+        this.toggleRightSidebar(false);
+      });
+    }
+
     this.renderPresetLayoutCards();
   }
 
@@ -1431,6 +1536,27 @@ class WallpaperApp {
 
   toggleLeftSidebar(forceOpen = null) {
     if (!this.dom.leftSidebar) return;
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile) {
+      const isCurrentlyOpen = this.dom.leftSidebar.classList.contains('mobile-open');
+      const shouldOpen = forceOpen !== null ? forceOpen : !isCurrentlyOpen;
+
+      if (shouldOpen && this.dom.rightSidebar) {
+        this.dom.rightSidebar.classList.remove('mobile-open');
+        if (this.dom.mobilePhotosTab) this.dom.mobilePhotosTab.classList.remove('is-active');
+      }
+
+      this.dom.leftSidebar.classList.toggle('mobile-open', shouldOpen);
+      if (this.dom.mobileToolsTab) {
+        this.dom.mobileToolsTab.classList.toggle('is-active', shouldOpen);
+      }
+      if (this.dom.mobileSidebarBackdrop) {
+        this.dom.mobileSidebarBackdrop.classList.toggle('is-visible', shouldOpen);
+      }
+      return;
+    }
+
     const isCurrentlyCollapsed = this.dom.leftSidebar.classList.contains('is-collapsed');
     const shouldCollapse = forceOpen !== null ? !forceOpen : !isCurrentlyCollapsed;
     this.dom.leftSidebar.classList.toggle('is-collapsed', shouldCollapse);
@@ -1449,6 +1575,27 @@ class WallpaperApp {
 
   toggleRightSidebar(forceOpen = null) {
     if (!this.dom.rightSidebar) return;
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile) {
+      const isCurrentlyOpen = this.dom.rightSidebar.classList.contains('mobile-open');
+      const shouldOpen = forceOpen !== null ? forceOpen : !isCurrentlyOpen;
+
+      if (shouldOpen && this.dom.leftSidebar) {
+        this.dom.leftSidebar.classList.remove('mobile-open');
+        if (this.dom.mobileToolsTab) this.dom.mobileToolsTab.classList.remove('is-active');
+      }
+
+      this.dom.rightSidebar.classList.toggle('mobile-open', shouldOpen);
+      if (this.dom.mobilePhotosTab) {
+        this.dom.mobilePhotosTab.classList.toggle('is-active', shouldOpen);
+      }
+      if (this.dom.mobileSidebarBackdrop) {
+        this.dom.mobileSidebarBackdrop.classList.toggle('is-visible', shouldOpen);
+      }
+      return;
+    }
+
     const isCurrentlyCollapsed = this.dom.rightSidebar.classList.contains('is-collapsed');
     const shouldCollapse = forceOpen !== null ? !forceOpen : !isCurrentlyCollapsed;
     this.dom.rightSidebar.classList.toggle('is-collapsed', shouldCollapse);

@@ -1,0 +1,24 @@
+# VibeWall
+
+> Universal Aesthetic Collage & Wallpaper Creator. Design custom wallpapers, Pinterest-style photo collages, and aesthetic moodboards for iPhone, Samsung, iPad, Mac, and 4K desktops.
+
+## Overview
+VibeWall is a free web-based aesthetic wallpaper and collage creator. Users can upload personal photos, generate dynamic grids with featured hero blocks, customize layouts, apply cut-out shapes (hearts, stars, unicorns, diamonds, butterflies, hexagons, circles), merge and split blocks into banners, and export ultra-high-resolution wallpapers formatted for phone lockscreens and desktop backgrounds.
+
+## Key Features
+- Dynamic Grid Engine: Pinterest mosaic, single hero, dual hero, multi-span layouts with customizable columns and aspect ratios.
+- Unlimited Block Merging & Splitting: Merge adjacent cells in any direction (horizontal, vertical, full-width banners) or destroy/subdivide them into individual 1x1 cells.
+- Cutout Shapes: SVG vector masks including Heart, Unicorn, Star, Diamond, Butterfly, Hexagon, Circle, and Rounded.
+- Device Mockups & Presets: iPhone 15/16 Pro Max, Samsung S24 Ultra, MacBook Pro 16, iPad Pro 12.9, 4K UHD Desktop, and custom dimensions.
+- Privacy First: 100% client-side canvas generation and export. No photos uploaded to external servers.
+- Responsive Mobile Studio: Mobile-optimized bottom toolbar, touch-friendly controls, and drawer navigation.
+
+## Main Pages
+- Home: https://vibewall.vercel.app/
+- Creator Studio: https://vibewall.vercel.app/studio/
+- About: https://vibewall.vercel.app/about/
+
+## Creator & Project Details
+- Developer: Bhaumik
+- GitHub: https://github.com/imbhaumik147/vibewall
+- Contact: imbhaumik168@gmail.com

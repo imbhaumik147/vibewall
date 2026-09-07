@@ -612,14 +612,14 @@ export class WallpaperGridEngine {
       s.index = idx;
     });
 
-    // If hero count needs adjustment
-    if (isHero && this.heroCount > 0) {
-      this.heroCount = Math.max(0, this.heroCount - 1);
-    }
+    // Preserve existing images across the grid; fill new 1x1 slots nicely
+    const activeImg = this.slotImages[slotIndex] || '';
+    const newSlotImages = [...this.slotImages];
+    const replImages = replacementSlots.map((_, i) => i === 0 ? activeImg : (this.regularImages[i % Math.max(1, this.regularImages.length)] || ''));
+    newSlotImages.splice(slotIndex, 1, ...replImages);
+    this.slotImages = newSlotImages;
 
-    this.refreshSlotImages();
     this.render();
-
     return { count, row, col, spanRow, spanCol, type: 'subdivide' };
   }
 
@@ -636,9 +636,11 @@ export class WallpaperGridEngine {
   }
 
   /**
-   * mergeSlot — merges the selected slot with its neighbors in `direction`.
-   * direction: 'right' (horizontal expand by 1 col) or 'down' (vertical expand by 1 row)
-   * Returns the merged slot index, or null if not possible.
+   * mergeSlot — merges the selected slot with neighbors in any direction.
+   * direction: 'right', 'down', 'left', 'up', or 'banner'
+   * Automatically slices any multi-span neighbor that partially overlaps the target rectangle,
+   * allowing unlimited repeated merges and destroys into banners or custom blocks!
+   * Returns the merged slot index, or null if out of bounds.
    */
   mergeSlot(slotIndex, direction) {
     slotIndex = parseInt(slotIndex, 10);
@@ -646,110 +648,116 @@ export class WallpaperGridEngine {
     const slot = this.slots[slotIndex];
     if (!slot) return null;
 
-    // Build 2D spatial map
-    const gridMap = Array.from({ length: this.rows }, () => Array(this.cols).fill(null));
+    let targetR1 = slot.row;
+    let targetR2 = slot.row + slot.spanRow;
+    let targetC1 = slot.col;
+    let targetC2 = slot.col + slot.spanCol;
+
+    if (direction === 'right') {
+      targetC2 += 1;
+    } else if (direction === 'left') {
+      targetC1 -= 1;
+    } else if (direction === 'down') {
+      targetR2 += 1;
+    } else if (direction === 'up') {
+      targetR1 -= 1;
+    } else if (direction === 'banner') {
+      targetC1 = 0;
+      targetC2 = this.cols;
+    } else {
+      return null;
+    }
+
+    // Bounds check
+    if (targetR1 < 0 || targetR2 > this.rows || targetC1 < 0 || targetC2 > this.cols) {
+      return null; // Hit outer canvas boundary
+    }
+
+    // Identify all slots (excluding the active slot) that intersect the target rectangle
+    const intersectingSlots = [];
     this.slots.forEach(s => {
-      for (let r = s.row; r < s.row + s.spanRow; r++) {
-        for (let c = s.col; c < s.col + s.spanCol; c++) {
-          if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) gridMap[r][c] = s;
+      if (s === slot) return;
+      const sR2 = s.row + s.spanRow;
+      const sC2 = s.col + s.spanCol;
+      const overlaps = !(s.row >= targetR2 || sR2 <= targetR1 || s.col >= targetC2 || sC2 <= targetC1);
+      if (overlaps) {
+        intersectingSlots.push(s);
+      }
+    });
+
+    // If an intersecting slot has cells outside the target rectangle,
+    // decompose it into 1x1 cells so the remnant cells outside remain preserved.
+    const remnantSlots = [];
+    intersectingSlots.forEach(other => {
+      const oR2 = other.row + other.spanRow;
+      const oC2 = other.col + other.spanCol;
+      const fullyInside = other.row >= targetR1 && oR2 <= targetR2 && other.col >= targetC1 && oC2 <= targetC2;
+      if (!fullyInside) {
+        // Break other into 1x1 blocks for any cell OUTSIDE the target rectangle
+        const otherImg = this.slotImages[other.index] || '';
+        for (let r = other.row; r < oR2; r++) {
+          for (let c = other.col; c < oC2; c++) {
+            const inTarget = (r >= targetR1 && r < targetR2 && c >= targetC1 && c < targetC2);
+            if (!inTarget) {
+              remnantSlots.push({
+                row: r,
+                col: c,
+                spanRow: 1,
+                spanCol: 1,
+                isHero: false,
+                heroIndex: -1,
+                img: otherImg
+              });
+            }
+          }
         }
       }
     });
 
-    if (direction === 'right') {
-      // The merged block would span: same rows as slot, cols from slot.col to slot.col+slot.spanCol
-      const newSpanCol = slot.spanCol + 1;
-      const newEndCol = slot.col + newSpanCol;
-      if (newEndCol > this.cols) return null; // out of bounds
+    const activeImg = this.slotImages[slot.index] || '';
+    const removeSet = new Set(intersectingSlots);
 
-      // All cells in the right-side column strip that need to be absorbed
-      // They must all be 1x1 standard blocks (not hero) or at least contiguous within that column strip
-      const absorbCol = slot.col + slot.spanCol;
-      const slotsToAbsorb = [];
-      for (let r = slot.row; r < slot.row + slot.spanRow; r++) {
-        const neighbor = gridMap[r][absorbCol];
-        if (!neighbor || neighbor.index === slot.index) return null; // gap or self
-        if (!slotsToAbsorb.find(s => s.index === neighbor.index)) {
-          slotsToAbsorb.push(neighbor);
+    // Filter out all absorbed slots
+    const preservedSlots = this.slots.filter(s => !removeSet.has(s));
+
+    // Update active slot dimensions
+    slot.row = targetR1;
+    slot.col = targetC1;
+    slot.spanRow = targetR2 - targetR1;
+    slot.spanCol = targetC2 - targetC1;
+    slot.isHero = false;
+
+    // Build new slots array with preserved slots + remnant 1x1 cells
+    this.slots = [...preservedSlots, ...remnantSlots.map(r => ({
+      row: r.row,
+      col: r.col,
+      spanRow: 1,
+      spanCol: 1,
+      isHero: false,
+      heroIndex: -1
+    }))];
+
+    // Re-index slots
+    this.slots.forEach((s, idx) => s.index = idx);
+
+    // Build matching slotImages array
+    const newSlotImages = [];
+    this.slots.forEach(s => {
+      if (s === slot) {
+        newSlotImages.push(activeImg);
+      } else {
+        const foundRemnant = remnantSlots.find(r => r.row === s.row && r.col === s.col && s.spanRow === 1 && s.spanCol === 1);
+        if (foundRemnant) {
+          newSlotImages.push(foundRemnant.img);
+        } else {
+          newSlotImages.push(this.slotImages[s.index] || '');
         }
       }
-      // Each absorbed slot must fully live within the absorb column strip (no wider spillover)
-      for (const nb of slotsToAbsorb) {
-        if (nb.col < absorbCol || nb.col + nb.spanCol > newEndCol) return null;
-        if (nb.row < slot.row || nb.row + nb.spanRow > slot.row + slot.spanRow) return null;
-      }
+    });
+    this.slotImages = newSlotImages;
 
-      // Keep the image from the first absorbed neighbor
-      const absorbedImg = this.slotImages[slotsToAbsorb[0].index] || this.slotImages[slot.index] || '';
-
-      // Remove absorbed slots from slots array
-      const absorbIndices = new Set(slotsToAbsorb.map(s => s.index));
-      this.slots = this.slots.filter(s => !absorbIndices.has(s.index));
-
-      // Find the slot again after filter
-      const slotRef = this.slots.find(s => s.row === slot.row && s.col === slot.col);
-      if (!slotRef) return null;
-
-      slotRef.spanCol = newSpanCol;
-      if (slotRef.spanRow > 1 || slotRef.spanCol > 1) slotRef.isHero = false;
-
-      // Re-index
-      this.slots.forEach((s, idx) => s.index = idx);
-
-      // Keep original image on merged slot, optionally absorb neighbor image
-      const mergedIdx = this.slots.indexOf(slotRef);
-      this.slotImages = this.slots.map((s, i) => {
-        if (i === mergedIdx) return this.slotImages[slot.index] || absorbedImg;
-        return this.slotImages[s.index] || '';
-      });
-
-      this.refreshSlotImages();
-      this.render();
-      return slotRef.index;
-
-    } else if (direction === 'down') {
-      const newSpanRow = slot.spanRow + 1;
-      const newEndRow = slot.row + newSpanRow;
-      if (newEndRow > this.rows) return null;
-
-      const absorbRow = slot.row + slot.spanRow;
-      const slotsToAbsorb = [];
-      for (let c = slot.col; c < slot.col + slot.spanCol; c++) {
-        const neighbor = gridMap[absorbRow][c];
-        if (!neighbor || neighbor.index === slot.index) return null;
-        if (!slotsToAbsorb.find(s => s.index === neighbor.index)) {
-          slotsToAbsorb.push(neighbor);
-        }
-      }
-      for (const nb of slotsToAbsorb) {
-        if (nb.row < absorbRow || nb.row + nb.spanRow > newEndRow) return null;
-        if (nb.col < slot.col || nb.col + nb.spanCol > slot.col + slot.spanCol) return null;
-      }
-
-      const absorbedImg = this.slotImages[slotsToAbsorb[0].index] || this.slotImages[slot.index] || '';
-      const absorbIndices = new Set(slotsToAbsorb.map(s => s.index));
-      this.slots = this.slots.filter(s => !absorbIndices.has(s.index));
-
-      const slotRef = this.slots.find(s => s.row === slot.row && s.col === slot.col);
-      if (!slotRef) return null;
-
-      slotRef.spanRow = newSpanRow;
-      if (slotRef.spanRow > 1 || slotRef.spanCol > 1) slotRef.isHero = false;
-
-      this.slots.forEach((s, idx) => s.index = idx);
-
-      const mergedIdx = this.slots.indexOf(slotRef);
-      this.slotImages = this.slots.map((s, i) => {
-        if (i === mergedIdx) return this.slotImages[slot.index] || absorbedImg;
-        return this.slotImages[s.index] || '';
-      });
-
-      this.refreshSlotImages();
-      this.render();
-      return slotRef.index;
-    }
-
-    return null;
+    this.render();
+    return slot.index;
   }
 
   moveSlot(slotIndex, direction) {
