@@ -588,6 +588,37 @@ input[type=range]::-webkit-slider-thumb:hover {
   transform: scale(0.95);
 }
 
+/* ---- Floating Block Docks: Move on Left, Actions on Right (beside wallpaper) ---- */
+#tile-move-bar {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 45;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.5);
+  animation: dockSlideInLeft 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#tile-action-bar {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 45;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.5);
+  animation: dockSlideInRight 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes dockSlideInLeft {
+  from { opacity: 0; transform: translateY(-50%) translateX(-12px); }
+  to { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+@keyframes dockSlideInRight {
+  from { opacity: 0; transform: translateY(-50%) translateX(12px); }
+  to { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
 /* ---- Studio: Mobile breakpoint ---- */
 @media (max-width: 767px) {
   #left-sidebar-resizer,
@@ -653,14 +684,28 @@ input[type=range]::-webkit-slider-thumb:hover {
     pointer-events: auto !important;
   }
 
-  #tile-action-bar {
+  #tile-move-bar {
+    left: 8px !important;
+    top: auto !important;
     bottom: 16px !important;
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) !important;
-    max-width: calc(100vw - 24px) !important;
-    padding: 6px 10px !important;
+    transform: none !important;
+    max-width: 140px !important;
+    padding: 8px !important;
     gap: 6px !important;
+    z-index: 50 !important;
+  }
+
+  #tile-action-bar {
+    right: 8px !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: 16px !important;
+    transform: none !important;
+    min-width: 120px !important;
+    max-width: 140px !important;
+    padding: 8px !important;
+    gap: 6px !important;
+    z-index: 50 !important;
   }
 
   #toast-container {

@@ -235,8 +235,9 @@ class WallpaperApp {
       exportPreviewCanvas: document.getElementById('export-preview-canvas'),
       exportResInfo: document.getElementById('export-res-info'),
 
-      // Floating Block Inspector & Action Bar
+      // Floating Block Inspector & Action Bars (Left Move/Merge Dock, Right Action Dock)
       tileActionBar: document.getElementById('tile-action-bar'),
+      tileMoveBar: document.getElementById('tile-move-bar'),
       tileActionIcon: document.getElementById('tile-action-icon'),
       tileActionTitle: document.getElementById('tile-action-title'),
       tileActionSubtitle: document.getElementById('tile-action-subtitle'),
@@ -551,7 +552,8 @@ class WallpaperApp {
       this.dom.tileActionSubtitle.innerText = `Row ${slot.row + 1}, Col ${slot.col + 1}`;
     }
 
-    this.dom.tileActionBar.classList.remove('hidden');
+    if (this.dom.tileActionBar) this.dom.tileActionBar.classList.remove('hidden');
+    if (this.dom.tileMoveBar) this.dom.tileMoveBar.classList.remove('hidden');
 
     // Highlight selected tile on canvas
     document.querySelectorAll('.grid-tile, .grid-tile-skeleton').forEach(el => el.classList.remove('is-selected-source'));
@@ -596,6 +598,9 @@ class WallpaperApp {
   hideTileActionBar() {
     if (this.dom.tileActionBar) {
       this.dom.tileActionBar.classList.add('hidden');
+    }
+    if (this.dom.tileMoveBar) {
+      this.dom.tileMoveBar.classList.add('hidden');
     }
     this.selectedSlotIndex = null;
   }
