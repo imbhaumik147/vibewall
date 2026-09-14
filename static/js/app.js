@@ -44,8 +44,11 @@ class WallpaperApp {
 
     this.interactionMode = 'drag'; // 'drag' | 'select'
     this.selectedSource = null; // { type: 'tray'|'canvas', imgSrc, slotIndex, el }
+    this.selectedSlotIndex = null;
 
     this.targetSlotForReplace = null;
+    this.undoStack = [];
+    this.redoStack = [];
 
     this.initDOM();
     this.initEngine();
@@ -212,6 +215,14 @@ class WallpaperApp {
       // Header Actions
       toggleFrameBtn: document.getElementById('toggle-frame-btn'),
       exportBtn: document.getElementById('export-btn'),
+      undoBtn: document.getElementById('undo-btn'),
+      redoBtn: document.getElementById('redo-btn'),
+      shortcutsBtn: document.getElementById('shortcuts-btn'),
+
+      // Shortcuts Modal
+      shortcutsModal: document.getElementById('shortcuts-modal'),
+      closeShortcutsModalBtn: document.getElementById('close-shortcuts-modal'),
+      okShortcutsBtn: document.getElementById('ok-shortcuts-btn'),
 
       // Collapsible & Resizable Sidebars
       leftSidebar: document.getElementById('left-sidebar'),
@@ -235,9 +246,10 @@ class WallpaperApp {
       exportPreviewCanvas: document.getElementById('export-preview-canvas'),
       exportResInfo: document.getElementById('export-res-info'),
 
-      // Floating Block Inspector & Action Bars (Left Move/Merge Dock, Right Action Dock)
-      tileActionBar: document.getElementById('tile-action-bar'),
-      tileMoveBar: document.getElementById('tile-move-bar'),
+      // Non-Overlapping Bottom Block Inspector & Action Bar
+      activeBlockDock: document.getElementById('active-block-dock'),
+      tileActionBar: document.getElementById('active-block-dock'),
+      tileMoveBar: null,
       tileActionIcon: document.getElementById('tile-action-icon'),
       tileActionTitle: document.getElementById('tile-action-title'),
       tileActionSubtitle: document.getElementById('tile-action-subtitle'),
@@ -256,12 +268,7 @@ class WallpaperApp {
       tileClearBtn: document.getElementById('tile-clear-btn'),
       tileActionCloseBtn: document.getElementById('tile-action-close-btn'),
 
-      // Persistent Left & Right Studio Docks & Backdrop
-      dockLeftToolsBtn: document.getElementById('dock-left-tools-btn'),
-      dockRightPhotosBtn: document.getElementById('dock-right-photos-btn'),
-      dockRightShuffleBtn: document.getElementById('dock-right-shuffle-btn'),
-      dockRightBezelBtn: document.getElementById('dock-right-bezel-btn'),
-      dockRightExportBtn: document.getElementById('dock-right-export-btn'),
+      // Mobile Backdrop
       mobileSidebarBackdrop: document.getElementById('mobile-sidebar-backdrop')
     };
   }
@@ -343,8 +350,12 @@ class WallpaperApp {
     const frame = this.dom.deviceFrame;
     if (!wrapper || !frame) return;
 
-    const availW = Math.max(120, wrapper.clientWidth - 36);
-    const availH = Math.max(120, wrapper.clientHeight - 36);
+    // Reserve bottom space if block dock is visible so it NEVER overlaps the wallpaper
+    const isDockVisible = this.dom.activeBlockDock && !this.dom.activeBlockDock.classList.contains('hidden');
+    const bottomReserve = isDockVisible ? 68 : 32;
+
+    const availW = Math.max(120, wrapper.clientWidth - 40);
+    const availH = Math.max(120, wrapper.clientHeight - (20 + bottomReserve));
     const aspect = this.canvasWidth / this.canvasHeight;
 
     let targetW, targetH;
@@ -553,9 +564,10 @@ class WallpaperApp {
     }
 
     if (this.dom.tileActionBar) this.dom.tileActionBar.classList.remove('hidden');
-    if (this.dom.tileMoveBar) this.dom.tileMoveBar.classList.remove('hidden');
+    if (this.dom.activeBlockDock) this.dom.activeBlockDock.classList.remove('hidden');
+    this.fitCanvasToViewport();
 
-    // Highlight selected tile on canvas
+    // Highlight selected tile on canvas (Clean glowing ring without buttons over photo)
     document.querySelectorAll('.grid-tile, .grid-tile-skeleton').forEach(el => el.classList.remove('is-selected-source'));
     const tileEl = this.dom.gridContainer.querySelector(`[data-slot-index="${slotIndex}"]`);
     if (tileEl) {
@@ -563,20 +575,109 @@ class WallpaperApp {
     }
   }
 
+  selectSlot(slotIndex) {
+    if (slotIndex === null || slotIndex === undefined || slotIndex < 0 || slotIndex >= this.engine.slots.length) return;
+    this.selectedSlotIndex = slotIndex;
+    this.selectedSource = {
+      type: 'canvas',
+      slotIndex: slotIndex,
+      imgSrc: this.engine.slotImages[slotIndex] || '',
+      el: this.dom.gridContainer.querySelector(`[data-slot-index="${slotIndex}"]`)
+    };
+    this.showTileActionBar(slotIndex);
+  }
+
+  saveHistoryState() {
+    if (!this.engine) return;
+    const snapshot = {
+      engineState: this.engine.getStateSnapshot(),
+      selectedSlotIndex: this.selectedSlotIndex
+    };
+    this.undoStack.push(snapshot);
+    if (this.undoStack.length > 35) {
+      this.undoStack.shift();
+    }
+    this.redoStack = [];
+    this.updateUndoRedoBtnState();
+  }
+
+  undo() {
+    if (this.undoStack.length === 0) {
+      this.showToast('Nothing to undo', 'info');
+      return;
+    }
+    const currentState = {
+      engineState: this.engine.getStateSnapshot(),
+      selectedSlotIndex: this.selectedSlotIndex
+    };
+    this.redoStack.push(currentState);
+    const prevState = this.undoStack.pop();
+
+    this.engine.restoreStateSnapshot(prevState.engineState);
+    if (prevState.selectedSlotIndex !== null && prevState.selectedSlotIndex < this.engine.slots.length) {
+      this.selectSlot(prevState.selectedSlotIndex);
+    } else {
+      this.clearSelection();
+    }
+    this.updateUploadTray();
+    this.updateHeroStatusUI();
+    this.updateUndoRedoBtnState();
+    this.fitCanvasToViewport();
+    this.showToast('Undo (step back)', 'info');
+  }
+
+  redo() {
+    if (this.redoStack.length === 0) {
+      this.showToast('Nothing to redo', 'info');
+      return;
+    }
+    const currentState = {
+      engineState: this.engine.getStateSnapshot(),
+      selectedSlotIndex: this.selectedSlotIndex
+    };
+    this.undoStack.push(currentState);
+    const nextState = this.redoStack.pop();
+
+    this.engine.restoreStateSnapshot(nextState.engineState);
+    if (nextState.selectedSlotIndex !== null && nextState.selectedSlotIndex < this.engine.slots.length) {
+      this.selectSlot(nextState.selectedSlotIndex);
+    } else {
+      this.clearSelection();
+    }
+    this.updateUploadTray();
+    this.updateHeroStatusUI();
+    this.updateUndoRedoBtnState();
+    this.fitCanvasToViewport();
+    this.showToast('Redo (step ahead)', 'info');
+  }
+
+  updateUndoRedoBtnState() {
+    if (this.dom.undoBtn) {
+      this.dom.undoBtn.classList.toggle('opacity-30', this.undoStack.length === 0);
+    }
+    if (this.dom.redoBtn) {
+      this.dom.redoBtn.classList.toggle('opacity-30', this.redoStack.length === 0);
+    }
+  }
+
   moveSelectedBlock(direction) {
     if (this.selectedSlotIndex === null || this.selectedSlotIndex === undefined) return;
+    this.saveHistoryState();
     const newIndex = this.engine.moveSlot(this.selectedSlotIndex, direction);
     if (newIndex !== null && newIndex !== undefined) {
       this.selectedSlotIndex = newIndex;
       this.showTileActionBar(newIndex);
       this.showToast(`Moved block ${direction}`, 'success');
     } else {
+      this.undoStack.pop(); // Revert snapshot if move was a no-op
+      this.updateUndoRedoBtnState();
       this.showToast(`Cannot move block ${direction} (edge reached)`, 'info');
     }
   }
 
   mergeSelectedBlock(direction) {
     if (this.selectedSlotIndex === null || this.selectedSlotIndex === undefined) return;
+    this.saveHistoryState();
     const newIndex = this.engine.mergeSlot(this.selectedSlotIndex, direction);
     if (newIndex !== null && newIndex !== undefined) {
       this.selectedSlotIndex = newIndex;
@@ -585,24 +686,102 @@ class WallpaperApp {
       if (direction === 'banner') label = 'into full-width banner';
       else if (direction === 'right') label = 'to the right';
       else if (direction === 'left') label = 'to the left';
-      else if (direction === 'down') label = 'downward';
-      else if (direction === 'up') label = 'upward';
+      else if (direction === 'down' || direction === 'below') label = 'downward / below';
+      else if (direction === 'up' || direction === 'above') label = 'upward / above';
       this.showToast(`Merged ${label}!`, 'success');
       this.updateHeroStatusUI();
       this.updateUploadTray();
     } else {
+      this.undoStack.pop(); // Revert snapshot if merge was a no-op
+      this.updateUndoRedoBtnState();
       this.showToast(`Cannot merge ${direction} — edge of grid reached`, 'info');
     }
+  }
+
+  splitSelectedBlock() {
+    if (this.selectedSlotIndex === null || this.selectedSlotIndex === undefined) return;
+    this.saveHistoryState();
+    const res = this.engine.subdivideSlot(this.selectedSlotIndex);
+    if (res) {
+      this.showToast(`Block split into ${res.count} smaller squares!`, 'success');
+      this.hideTileActionBar();
+      this.clearSelection();
+      this.updateHeroStatusUI();
+      this.updateUploadTray();
+    } else {
+      this.undoStack.pop();
+      this.updateUndoRedoBtnState();
+      this.showToast('Block is already at minimum unit size', 'info');
+    }
+  }
+
+  clearSelectedBlockPhoto() {
+    if (this.selectedSlotIndex === null || this.selectedSlotIndex === undefined) return;
+    this.saveHistoryState();
+    this.engine.clearSlotImage(this.selectedSlotIndex);
+    this.showToast('Photo cleared from block', 'info');
+    this.updateUploadTray();
+  }
+
+  replaceSelectedBlockPhoto() {
+    if (this.selectedSlotIndex === null || this.selectedSlotIndex === undefined) return;
+    this.targetSlotForReplace = this.selectedSlotIndex;
+    if (this.dom.singleSlotFileInput) {
+      this.dom.singleSlotFileInput.click();
+    }
+  }
+
+  toggleSelectedBlockHero() {
+    if (this.selectedSlotIndex === null || this.selectedSlotIndex === undefined) return;
+    const slot = this.engine.slots[this.selectedSlotIndex];
+    if (!slot) return;
+    this.saveHistoryState();
+    slot.isHero = !slot.isHero;
+    this.engine.heroCount = this.engine.slots.filter(s => s.isHero).length;
+    this.engine.render();
+    this.showTileActionBar(this.selectedSlotIndex);
+    this.updateHeroStatusUI();
+    this.showToast(slot.isHero ? 'Promoted to Hero block' : 'Set to Standard block', 'info');
+  }
+
+  cycleFilter() {
+    const filters = ['', 'filter-vintage', 'filter-bw', 'filter-vibrant', 'filter-warm', 'filter-cool'];
+    const currentIdx = filters.indexOf(this.activeFilter || '');
+    const nextIdx = (currentIdx + 1) % filters.length;
+    this.saveHistoryState();
+    this.activeFilter = filters[nextIdx];
+    this.engine.filterClass = this.activeFilter;
+    this.engine.render();
+    if (this.dom.filterChips) {
+      this.dom.filterChips.forEach(b => {
+        b.className = b.dataset.filter === this.activeFilter
+          ? 'filter-chip active py-1.5 px-2.5 rounded-xl border border-slate-900 bg-slate-900 text-white font-bold text-left transition-all flex items-center gap-1.5'
+          : 'filter-chip py-1.5 px-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium hover:border-slate-400 text-left transition-all flex items-center gap-1.5';
+      });
+    }
+    const filterName = this.activeFilter ? this.activeFilter.replace('filter-', '').toUpperCase() : 'ORIGINAL';
+    this.showToast(`Tone: ${filterName}`, 'info');
+  }
+
+  toggleShortcutsModal(force = null) {
+    if (!this.dom.shortcutsModal) return;
+    const isHidden = this.dom.shortcutsModal.classList.contains('hidden');
+    const show = force !== null ? force : isHidden;
+    this.dom.shortcutsModal.classList.toggle('hidden', !show);
   }
 
   hideTileActionBar() {
     if (this.dom.tileActionBar) {
       this.dom.tileActionBar.classList.add('hidden');
     }
+    if (this.dom.activeBlockDock) {
+      this.dom.activeBlockDock.classList.add('hidden');
+    }
     if (this.dom.tileMoveBar) {
       this.dom.tileMoveBar.classList.add('hidden');
     }
     this.selectedSlotIndex = null;
+    this.fitCanvasToViewport();
   }
 
   clearSelection() {
@@ -763,58 +942,26 @@ class WallpaperApp {
       this.dom.modeSelectBtn.addEventListener('click', () => this.setInteractionMode('select'));
     }
 
-    // Escape key clears selection, Delete/Backspace deletes/splits selected block, Arrow keys move block
-    window.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
-        return;
-      }
-      if (e.key === 'Escape') {
-        this.clearSelection();
-      } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
-          const slot = this.engine.slots[this.selectedSlotIndex];
-          if (slot && (slot.isHero || slot.spanRow > 1 || slot.spanCol > 1)) {
-            const res = this.engine.subdivideSlot(this.selectedSlotIndex);
-            if (res) {
-              this.showToast(`Block destroyed — fitted ${res.count} square${res.count > 1 ? 's' : ''} in its place!`, 'success');
-              this.hideTileActionBar();
-              this.clearSelection();
-              this.updateHeroStatusUI();
-              this.updateUploadTray();
-              this.engine.setImages(this.rawUploadedUrls, this.rawHeroUrls);
-            }
-          } else if (this.selectedSlotIndex !== null) {
-            this.engine.clearSlotImage(this.selectedSlotIndex);
-            this.showToast('Photo cleared from block', 'info');
-            this.hideTileActionBar();
-            this.clearSelection();
-            this.updateUploadTray();
-          }
-        }
-      } else if (e.key === 'ArrowUp') {
-        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
-          e.preventDefault();
-          this.moveSelectedBlock('up');
-        }
-      } else if (e.key === 'ArrowDown') {
-        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
-          e.preventDefault();
-          this.moveSelectedBlock('down');
-        }
-      } else if (e.key === 'ArrowLeft') {
-        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
-          e.preventDefault();
-          this.moveSelectedBlock('left');
-        }
-      } else if (e.key === 'ArrowRight') {
-        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
-          e.preventDefault();
-          this.moveSelectedBlock('right');
-        }
-      }
-    });
+    // Undo / Redo Toolbar Buttons
+    if (this.dom.undoBtn) {
+      this.dom.undoBtn.addEventListener('click', () => this.undo());
+    }
+    if (this.dom.redoBtn) {
+      this.dom.redoBtn.addEventListener('click', () => this.redo());
+    }
 
-    // Floating Tile Action Bar Directional Move Buttons
+    // Keyboard Shortcuts Modal Buttons
+    if (this.dom.shortcutsBtn) {
+      this.dom.shortcutsBtn.addEventListener('click', () => this.toggleShortcutsModal(true));
+    }
+    if (this.dom.closeShortcutsModalBtn) {
+      this.dom.closeShortcutsModalBtn.addEventListener('click', () => this.toggleShortcutsModal(false));
+    }
+    if (this.dom.okShortcutsBtn) {
+      this.dom.okShortcutsBtn.addEventListener('click', () => this.toggleShortcutsModal(false));
+    }
+
+    // Bottom Action Dock Directional Move Buttons
     if (this.dom.tileMoveLeftBtn) {
       this.dom.tileMoveLeftBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -844,12 +991,19 @@ class WallpaperApp {
       });
     }
 
-    // Floating Tile Action Bar Merge Buttons
+    // Bottom Action Dock Merge Buttons
     if (this.dom.tileMergeLeftBtn) {
       this.dom.tileMergeLeftBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         this.mergeSelectedBlock('left');
+      });
+    }
+    if (this.dom.tileMergeDownBtn) {
+      this.dom.tileMergeDownBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.mergeSelectedBlock('down');
       });
     }
     if (this.dom.tileMergeRightBtn) {
@@ -866,13 +1020,6 @@ class WallpaperApp {
         this.mergeSelectedBlock('up');
       });
     }
-    if (this.dom.tileMergeDownBtn) {
-      this.dom.tileMergeDownBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.mergeSelectedBlock('down');
-      });
-    }
     if (this.dom.tileMergeBannerBtn) {
       this.dom.tileMergeBannerBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -881,46 +1028,27 @@ class WallpaperApp {
       });
     }
 
-    // Floating Tile Action Bar Button Events
+    // Bottom Action Dock Actions
     if (this.dom.tileSplitBtn) {
       this.dom.tileSplitBtn.addEventListener('click', () => {
-        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
-          const res = this.engine.subdivideSlot(this.selectedSlotIndex);
-          if (res) {
-            this.showToast(`Block destroyed — fitted ${res.count} square${res.count > 1 ? 's' : ''} in its place!`, 'success');
-            this.hideTileActionBar();
-            this.clearSelection();
-            this.updateHeroStatusUI();
-            this.updateUploadTray();
-          }
-        }
+        this.splitSelectedBlock();
       });
     }
 
     if (this.dom.tileReplaceBtn) {
       this.dom.tileReplaceBtn.addEventListener('click', () => {
-        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
-          this.targetSlotForReplace = this.selectedSlotIndex;
-          this.dom.singleSlotFileInput.click();
-        }
+        this.replaceSelectedBlockPhoto();
       });
     }
 
     if (this.dom.tileClearBtn) {
       this.dom.tileClearBtn.addEventListener('click', () => {
-        if (this.selectedSlotIndex !== null && this.selectedSlotIndex !== undefined) {
-          this.engine.clearSlotImage(this.selectedSlotIndex);
-          this.showToast('Photo cleared from block', 'info');
-          this.hideTileActionBar();
-          this.clearSelection();
-          this.updateUploadTray();
-        }
+        this.clearSelectedBlockPhoto();
       });
     }
 
     if (this.dom.tileActionCloseBtn) {
       this.dom.tileActionCloseBtn.addEventListener('click', () => {
-        this.hideTileActionBar();
         this.clearSelection();
       });
     }
@@ -1370,57 +1498,204 @@ class WallpaperApp {
       this.dom.expandRightBtn.addEventListener('click', () => this.toggleRightSidebar(true));
     }
 
-    // Keyboard Shortcuts to toggle sidebars
+    // Comprehensive Keyboard Shortcuts Controller
     window.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+      // Don't intercept typing in text input fields (unless Escape)
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+        if (e.key === 'Escape') {
+          e.target.blur();
+          this.clearSelection();
+          this.toggleShortcutsModal(false);
+          if (this.dom.exportModal) this.dom.exportModal.classList.add('hidden');
+        }
+        return;
+      }
+
+      // 1. Undo / Redo (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+        e.preventDefault();
+        if (e.shiftKey) {
+          this.redo();
+        } else {
+          this.undo();
+        }
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) {
+        e.preventDefault();
+        this.redo();
+        return;
+      }
+
+      // 2. Escape: Deselect / Close Modals
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.toggleShortcutsModal(false);
+        if (this.dom.exportModal) this.dom.exportModal.classList.add('hidden');
+        this.clearSelection();
+        return;
+      }
+
+      // 3. Shortcuts Modal (? or K)
+      if (e.key === '?' || (e.shiftKey && e.key === '/') || (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'k' || e.key === 'K'))) {
+        e.preventDefault();
+        this.toggleShortcutsModal();
+        return;
+      }
+
+      // 4. Sidebar Toggles ([ / ])
       if (e.key === '[' || (e.ctrlKey && e.key === 'b')) {
         e.preventDefault();
         this.toggleLeftSidebar();
+        return;
       } else if (e.key === ']') {
         e.preventDefault();
         this.toggleRightSidebar();
+        return;
       }
-    });
 
-    // Studio Left Dock: Tools
-    if (this.dom.dockLeftToolsBtn) {
-      this.dom.dockLeftToolsBtn.addEventListener('click', (e) => {
+      // 5. Arrow Keys: Navigation vs Move vs Merge
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         e.preventDefault();
-        this.toggleLeftSidebar();
-      });
-    }
+        const dir = e.key === 'ArrowUp' ? 'up' : e.key === 'ArrowDown' ? 'down' : e.key === 'ArrowLeft' ? 'left' : 'right';
 
-    // Studio Right Dock: Photos, Shuffle, Bezel, Export
-    if (this.dom.dockRightPhotosBtn) {
-      this.dom.dockRightPhotosBtn.addEventListener('click', (e) => {
+        if (e.shiftKey) {
+          // Shift + Arrow: Move block physically in grid
+          this.moveSelectedBlock(dir);
+        } else if (e.altKey) {
+          // Alt + Arrow: Merge block in that direction
+          this.mergeSelectedBlock(dir);
+        } else {
+          // Arrow: Spatial Block Navigation
+          if (this.selectedSlotIndex === null || this.selectedSlotIndex === undefined) {
+            this.selectSlot(0);
+          } else {
+            const nextIdx = this.engine.getNeighborSlot(this.selectedSlotIndex, dir);
+            if (nextIdx !== null) {
+              this.selectSlot(nextIdx);
+            } else {
+              this.showToast(`Edge of grid reached (${dir})`, 'info');
+            }
+          }
+        }
+        return;
+      }
+
+      // 6. Split Block (X or S)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'x' || e.key === 'X' || (e.key === 's' && !e.shiftKey))) {
+        if (this.selectedSlotIndex !== null) {
+          e.preventDefault();
+          this.splitSelectedBlock();
+          return;
+        }
+      }
+
+      // 7. Alternative Merge Hotkeys:
+      // M or Alt+B = Banner
+      if (!e.ctrlKey && !e.metaKey) {
+        if (e.key === 'm' || e.key === 'M' || (e.altKey && (e.key === 'b' || e.key === 'B'))) {
+          if (this.selectedSlotIndex !== null) {
+            e.preventDefault();
+            this.mergeSelectedBlock('banner');
+            return;
+          }
+        }
+        // Shift + A = Merge Left, Shift + S = Merge Below, Shift + D = Merge Right, Shift + W = Merge Up
+        if (e.shiftKey) {
+          if (e.key === 'A') {
+            if (this.selectedSlotIndex !== null) {
+              e.preventDefault();
+              this.mergeSelectedBlock('left');
+              return;
+            }
+          } else if (e.key === 'S') {
+            if (this.selectedSlotIndex !== null) {
+              e.preventDefault();
+              this.mergeSelectedBlock('down');
+              return;
+            }
+          } else if (e.key === 'D') {
+            if (this.selectedSlotIndex !== null) {
+              e.preventDefault();
+              this.mergeSelectedBlock('right');
+              return;
+            }
+          } else if (e.key === 'W') {
+            if (this.selectedSlotIndex !== null) {
+              e.preventDefault();
+              this.mergeSelectedBlock('up');
+              return;
+            }
+          }
+        }
+      }
+
+      // 8. Block Photo Actions:
+      // Delete / Backspace: Clear Photo
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (this.selectedSlotIndex !== null) {
+          e.preventDefault();
+          this.clearSelectedBlockPhoto();
+          return;
+        }
+      }
+
+      // R: Replace Photo
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'r' || e.key === 'R')) {
+        if (this.selectedSlotIndex !== null) {
+          e.preventDefault();
+          this.replaceSelectedBlockPhoto();
+          return;
+        }
+      }
+
+      // H: Toggle Hero status
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'h' || e.key === 'H')) {
+        if (this.selectedSlotIndex !== null) {
+          e.preventDefault();
+          this.toggleSelectedBlockHero();
+          return;
+        }
+      }
+
+      // 9. Global Canvas Actions:
+      // Space: Shuffle Photos
+      if (e.code === 'Space' || e.key === ' ') {
         e.preventDefault();
-        this.toggleRightSidebar();
-      });
-    }
-    if (this.dom.dockRightShuffleBtn) {
-      this.dom.dockRightShuffleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
+        this.saveHistoryState();
         this.engine.shuffle();
         this.showToast('Normal covers shuffled! (Heroes locked)', 'info');
-      });
-    }
-    if (this.dom.dockRightBezelBtn) {
-      this.dom.dockRightBezelBtn.addEventListener('click', (e) => {
+        return;
+      }
+
+      // F: Cycle Photo Tone Filter
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault();
+        this.cycleFilter();
+        return;
+      }
+
+      // B: Toggle Phone Frame Bezel
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'b' || e.key === 'B')) {
         e.preventDefault();
         this.showDeviceFrame = !this.showDeviceFrame;
         if (this.dom.toggleFrameBtn) {
           this.dom.toggleFrameBtn.classList.toggle('bg-slate-200', this.showDeviceFrame);
         }
         this.updateCanvasAspectBox();
-        this.showToast(this.showDeviceFrame ? 'Device frame enabled' : 'Device frame hidden', 'info');
-      });
-    }
-    if (this.dom.dockRightExportBtn) {
-      this.dom.dockRightExportBtn.addEventListener('click', (e) => {
+        this.showToast(this.showDeviceFrame ? 'Device frame bezel shown' : 'Device frame hidden', 'info');
+        return;
+      }
+
+      // E or Ctrl+S: Export Wallpaper
+      if ((e.ctrlKey && (e.key === 's' || e.key === 'S')) || (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'e' || e.key === 'E'))) {
         e.preventDefault();
         this.openExportModal();
-      });
-    }
+        return;
+      }
+    });
+
+
 
     if (this.dom.mobileSidebarBackdrop) {
       this.dom.mobileSidebarBackdrop.addEventListener('click', () => {
@@ -1694,12 +1969,27 @@ class WallpaperApp {
           }
 
           this.uploadedImages.push(...newItems);
+          this.engine.regularImages = this.rawUploadedUrls;
+          this.engine.selectedHeroImages = this.rawHeroUrls;
 
           this.updateUploadTray();
           this.updateHeroStatusUI();
-          this.engine.calculateLayout();
-          this.engine.setImages(this.rawUploadedUrls, this.rawHeroUrls);
-          this.showToast(`Added ${loadedCount} photo(s) to gallery!`, 'success');
+
+          // Only auto-fill if the canvas was completely empty; never scramble an existing layout!
+          const hasExistingCanvasImages = this.engine.slotImages.some(img => img && img.trim() !== '');
+          if (!hasExistingCanvasImages && this.engine.slots.length > 0) {
+            this.engine.setImages(this.rawUploadedUrls, this.rawHeroUrls);
+          } else if (this.selectedSlotIndex !== null && newItems.length > 0) {
+            // If user had a block specifically selected when uploading, place the uploaded image into that block!
+            this.saveHistoryState();
+            this.engine.slotImages[this.selectedSlotIndex] = newItems[0].src;
+            this.engine.render();
+            this.showToast(`Placed photo into selected block! (${loadedCount} added to gallery)`, 'success');
+            this.dom.fileInput.value = '';
+            return;
+          }
+
+          this.showToast(`Added ${loadedCount} photo(s) to gallery! Drag or click to place.`, 'success');
         }
       };
       reader.readAsDataURL(file);
@@ -1719,11 +2009,27 @@ class WallpaperApp {
       }
     }
 
+    this.engine.regularImages = this.rawUploadedUrls;
+    this.engine.selectedHeroImages = this.rawHeroUrls;
+
+    // Only clear slots that were using this specific deleted image; DO NOT scramble the layout!
+    if (removed && removed.src) {
+      let clearedAny = false;
+      this.engine.slotImages = this.engine.slotImages.map(img => {
+        if (img === removed.src) {
+          clearedAny = true;
+          return '';
+        }
+        return img;
+      });
+      if (clearedAny) {
+        this.engine.render();
+      }
+    }
+
     this.clearSelection();
     this.updateUploadTray();
     this.updateHeroStatusUI();
-    this.engine.calculateLayout();
-    this.engine.setImages(this.rawUploadedUrls, this.rawHeroUrls);
     this.showToast('Photo removed from gallery', 'info');
   }
 

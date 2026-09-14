@@ -171,68 +171,12 @@ input[type=range]::-webkit-slider-thumb:hover {
   border-color: rgba(15, 23, 42, 0.35);
 }
 
-/* Hover overlay on tile */
-.tile-hover-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  z-index: 10;
-}
-
-.grid-tile:hover .tile-hover-overlay {
-  opacity: 1;
-}
-
-.selection-mode-active .tile-hover-overlay {
-  display: none !important;
-}
-
-/* Table Format Row Styling */
-.upload-table-row {
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.upload-table-row:hover {
-  background-color: #f8fafc;
-}
-
-.upload-table-row.is-selected-table-row {
-  background-color: #eef2ff !important;
-  border-left: 4px solid #4f46e5 !important;
-}
-
-/* Selection Mode Active Highlight Ring on Canvas and Elements */
+/* Clean Selection Highlight Ring on Canvas (No buttons or badges over photo) */
 .is-selected-source {
-  outline: 3px solid #4f46e5 !important;
-  outline-offset: -1px !important;
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.45), 0 10px 25px -5px rgba(79, 70, 229, 0.5) !important;
-  transform: scale(1.02) !important;
-  z-index: 35 !important;
-}
-
-.is-selected-source::after {
-  content: 'SELECTED';
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #4f46e5;
-  color: #ffffff;
-  font-size: 9px;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 6px;
-  letter-spacing: 0.5px;
-  z-index: 30;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-  pointer-events: none;
+  outline: 3px solid #6366f1 !important;
+  outline-offset: -2px !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.4), 0 8px 24px -4px rgba(99, 102, 241, 0.5) !important;
+  z-index: 25 !important;
 }
 
 /* Dragging States */

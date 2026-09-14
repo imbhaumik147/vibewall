@@ -377,6 +377,153 @@
 
   </div>
 
+  <!-- Keyboard Shortcuts & Studio Controls Reference -->
+  <div class="rounded-3xl bg-slate-900 text-white p-6 md:p-8 shadow-xl border border-slate-800 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div class="space-y-1">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+          <span>Studio Superpowers</span>
+        </div>
+        <h3 class="text-xl md:text-2xl font-black text-white tracking-tight">Pro Keyboard Shortcuts</h3>
+        <p class="text-xs text-slate-400">Design your aesthetic collage with lightning speed using zero mouse fatigue keyboard shortcuts.</p>
+      </div>
+      <a href="{% url 'studio' %}" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all inline-flex items-center justify-center gap-2 shrink-0">
+        <span>Launch Studio</span>
+        <kbd class="px-1.5 py-0.5 rounded bg-indigo-800 text-[10px] font-mono">?</kbd>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 text-xs">
+      
+      <!-- Card: Block Navigation & Move -->
+      <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+        <div class="font-bold text-slate-200 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+          <span>Navigation & Move</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Select Neighbor Tile</span>
+            <div class="flex gap-1 font-mono text-[11px]">
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">↑</kbd>
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">↓</kbd>
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">←</kbd>
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">→</kbd>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Move Block In Grid</span>
+            <div class="flex gap-1 font-mono text-[11px]">
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Shift</kbd>
+              <span>+</span>
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Arrows</kbd>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Toggle Hero Size</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">H</kbd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Merging & Splitting -->
+      <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+        <div class="font-bold text-slate-200 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>Merge & Split</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Merge Right / Left</span>
+            <div class="flex gap-1 font-mono text-[11px]">
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Alt</kbd>
+              <span>+</span>
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">← / →</kbd>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Merge Below / Up</span>
+            <div class="flex gap-1 font-mono text-[11px]">
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Alt</kbd>
+              <span>+</span>
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">↓ / ↑</kbd>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Full Row Banner</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">M</kbd>
+          </div>
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Split Block to 1×1</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">S</kbd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Undo, Redo & Operations -->
+      <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+        <div class="font-bold text-slate-200 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span>History & Actions</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Undo Step</span>
+            <div class="flex gap-1 font-mono text-[11px]">
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Ctrl</kbd>
+              <span>+</span>
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Z</kbd>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Redo Step</span>
+            <div class="flex gap-1 font-mono text-[11px]">
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Ctrl</kbd>
+              <span>+</span>
+              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Y</kbd>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Replace / Cycle Photo</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">R</kbd>
+          </div>
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Clear Block Photo</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">Del</kbd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Global Studio Hotkeys -->
+      <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3 sm:col-span-2 lg:col-span-3">
+        <div class="font-bold text-slate-200 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+          <span>Global Controls</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-slate-300">
+          <div class="flex items-center justify-between bg-slate-800/60 px-3 py-1.5 rounded-xl border border-slate-700/50">
+            <span>Shuffle Grid</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">Space</kbd>
+          </div>
+          <div class="flex items-center justify-between bg-slate-800/60 px-3 py-1.5 rounded-xl border border-slate-700/50">
+            <span>Cycle Tone Filter</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">F</kbd>
+          </div>
+          <div class="flex items-center justify-between bg-slate-800/60 px-3 py-1.5 rounded-xl border border-slate-700/50">
+            <span>Toggle Bezel</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">B</kbd>
+          </div>
+          <div class="flex items-center justify-between bg-slate-800/60 px-3 py-1.5 rounded-xl border border-slate-700/50">
+            <span>Lossless Export</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">Ctrl+S / E</kbd>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </section>
 
 <!-- Creator Details & Contact Section (Bhaumik) -->

@@ -124,6 +124,24 @@
         <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="3"/><circle cx="12" cy="18" r="1"/></svg>
         <span class="hidden sm:inline">Bezel</span>
       </button>
+      <div class="h-3.5 w-[1px] bg-slate-200 my-auto mx-0.5"></div>
+      <button id="toggle-right-sidebar-btn" class="px-2 py-1 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-white flex items-center gap-1.5 transition-all" title="Toggle Right Sidebar (Photos Gallery)">
+        <span class="hidden sm:inline">Photos</span>
+        <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></svg>
+      </button>
+      <div class="h-3.5 w-[1px] bg-slate-200 my-auto mx-0.5"></div>
+      <button id="undo-btn" class="p-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-white flex items-center gap-1 transition-all" title="Undo (Ctrl+Z)">
+        <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 015 5v2a5 5 0 01-5 5H6"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 6L3 10l4 4"/></svg>
+        <span class="hidden xl:inline text-[10px] font-bold">Undo</span>
+      </button>
+      <button id="redo-btn" class="p-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-white flex items-center gap-1 transition-all" title="Redo (Ctrl+Y)">
+        <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 10H11a5 5 0 00-5 5v2a5 5 0 005 5h7"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 6l4 4-4 4"/></svg>
+        <span class="hidden xl:inline text-[10px] font-bold">Redo</span>
+      </button>
+      <button id="shortcuts-btn" class="p-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:bg-white flex items-center gap-1 transition-all" title="Keyboard Shortcuts (?)">
+        <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"/></svg>
+        <span class="hidden xl:inline text-[10px] font-bold">Shortcuts</span>
+      </button>
     </div>
 
     <!-- Right: About & Export Button -->
@@ -653,36 +671,10 @@
     <!-- LEFT SIDEBAR RESIZER HANDLE (Drag to resize) -->
     <div id="left-sidebar-resizer" class="sidebar-resizer-handle" title="Drag to resize Left Sidebar"></div>
 
-    <!-- CENTER STAGE: Stable Responsive Wallpaper Canvas -->
+    <!-- CENTER STAGE: Stable Responsive Wallpaper Canvas (Clean & Unobscured) -->
     <main class="flex-1 flex flex-col min-w-0 bg-slate-100 relative overflow-hidden">
       
-      <!-- Studio Left Edge Panel: Navigation & Tools (Never hides when sidebar is closed) -->
-      <div id="studio-left-dock" class="absolute top-4 left-4 z-30 flex flex-col gap-2 pointer-events-auto">
-        <button id="dock-left-tools-btn" class="studio-dock-btn flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-md hover:bg-white text-slate-800 hover:text-indigo-600 font-bold text-xs transition-all hover:scale-105 active:scale-95" title="Toggle Left Sidebar (Layout, Styles &amp; Presets)">
-          <svg class="w-4 h-4 text-indigo-600 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
-          <span class="text-xs font-bold pointer-events-none">Tools</span>
-        </button>
-      </div>
-
-      <!-- Studio Right Edge Panel: Photos, Shuffle, Bezel & Export (Never hides when sidebar is closed) -->
-      <div id="studio-right-dock" class="absolute top-4 right-4 z-30 flex flex-col items-end gap-2 pointer-events-auto">
-        <button id="dock-right-photos-btn" class="studio-dock-btn flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-md hover:bg-white text-slate-800 hover:text-indigo-600 font-bold text-xs transition-all hover:scale-105 active:scale-95" title="Toggle Right Sidebar (Photos Gallery)">
-          <span class="text-xs font-bold pointer-events-none">Photos</span>
-          <svg class="w-4 h-4 text-indigo-600 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-        </button>
-        <button id="dock-right-shuffle-btn" class="studio-dock-btn flex items-center justify-center p-2 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-sm hover:bg-white text-slate-700 hover:text-indigo-600 transition-all hover:scale-105 active:scale-95" title="Shuffle Images">
-          <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
-        </button>
-        <button id="dock-right-bezel-btn" class="studio-dock-btn flex items-center justify-center p-2 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-sm hover:bg-white text-slate-700 hover:text-indigo-600 transition-all hover:scale-105 active:scale-95" title="Toggle Phone Mockup Bezel">
-          <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="3"/><circle cx="12" cy="18" r="1"/></svg>
-        </button>
-        <button id="dock-right-export-btn" class="studio-dock-btn flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-900 text-white shadow-lg hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 text-xs font-bold" title="Export Wallpaper">
-          <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          <span class="text-xs font-bold pointer-events-none">Export</span>
-        </button>
-      </div>
-
-      <!-- Canvas Viewport with Clean Studio Background -->
+      <!-- Canvas Viewport: Completely clean, no buttons floating above wallpaper -->
       <div id="canvas-wrapper" class="canvas-viewport flex-1 flex items-center justify-center p-3 overflow-hidden relative">
         
         <!-- Device Frame Mockup Container -->
@@ -698,98 +690,76 @@
 
         </div>
 
-        <!-- Left Floating Dock: Move & Merge Controls (docked on left side of wallpaper) -->
-        <div id="tile-move-bar" class="hidden absolute left-4 top-1/2 -translate-y-1/2 z-40 bg-slate-900/95 backdrop-blur-md text-white px-2.5 py-3 rounded-2xl shadow-2xl border border-slate-700/80 flex flex-col items-center gap-3">
-          <!-- Block Badge Indicator -->
-          <div class="flex flex-col items-center gap-1 pb-2 border-b border-slate-700/80 w-full text-center">
-            <div id="tile-action-icon" class="w-7 h-7 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px]">
-              #1
-            </div>
-            <div id="tile-action-title" class="text-[10px] font-bold text-white max-w-[80px] truncate">Hero Block</div>
-            <div id="tile-action-subtitle" class="text-[8px] text-slate-400 font-mono">Row 1, Col 1</div>
-          </div>
+      </div>
 
-          <!-- Move Up/Down/Left/Right Controls -->
-          <div class="flex flex-col items-center gap-1 p-1 bg-slate-800/80 rounded-xl border border-slate-700/60 w-full">
-            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider text-center">Move</span>
-            <div class="grid grid-cols-3 gap-1 place-items-center">
-              <div></div>
-              <button id="tile-move-up-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Up (Up Arrow)">
-                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
-              </button>
-              <div></div>
-              <button id="tile-move-left-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Left (Left Arrow)">
-                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-              </button>
-              <div class="w-3 h-3 rounded-full bg-indigo-500/30"></div>
-              <button id="tile-move-right-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Right (Right Arrow)">
-                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-              </button>
-              <div></div>
-              <button id="tile-move-down-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Down (Down Arrow)">
-                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-              </button>
-              <div></div>
-            </div>
+      <!-- Dedicated Non-Overlapping Bottom Action Dock for Selected Block -->
+      <div id="active-block-dock" class="hidden absolute bottom-3 left-1/2 -translate-x-1/2 z-30 bg-slate-900/95 backdrop-blur-md text-white px-3 py-2 rounded-2xl shadow-2xl border border-slate-700/80 flex items-center gap-2 max-w-[95vw] overflow-x-auto select-none animate-in fade-in slide-in-from-bottom-2 duration-150">
+        <!-- Block Badge -->
+        <div class="flex items-center gap-2 pr-2 border-r border-slate-700/80">
+          <div id="tile-action-icon" class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px]">
+            #1
           </div>
-
-          <!-- Merge Controls -->
-          <div class="flex flex-col items-center gap-1 p-1 bg-slate-800/80 rounded-xl border border-slate-700/60 w-full">
-            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider text-center">Merge</span>
-            <div class="flex items-center gap-1">
-              <button id="tile-merge-right-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-110 active:scale-95" title="Merge Right (expand horizontally)">
-                <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <rect x="2" y="6" width="8" height="12" rx="1.5"/>
-                  <rect x="14" y="6" width="8" height="12" rx="1.5"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 12h4"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 10l2 2-2 2"/>
-                </svg>
-              </button>
-              <button id="tile-merge-down-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-110 active:scale-95" title="Merge Down (expand vertically)">
-                <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <rect x="6" y="2" width="12" height="8" rx="1.5"/>
-                  <rect x="6" y="14" width="12" height="8" rx="1.5"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v4"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 13l2 2 2-2"/>
-                </svg>
-              </button>
-            </div>
-            <button id="tile-merge-banner-btn" class="w-full p-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 transition-all hover:scale-105 active:scale-95 text-[9px] font-bold flex items-center justify-center gap-1" title="Merge into Full Width Banner">
-              <svg class="w-3 h-3 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="1.5"/></svg>
-              <span>Banner</span>
-            </button>
+          <div class="min-w-0">
+            <div id="tile-action-title" class="text-[11px] font-bold text-white whitespace-nowrap">Block #1</div>
+            <div id="tile-action-subtitle" class="text-[9px] text-slate-400 font-mono whitespace-nowrap">Row 1, Col 1</div>
           </div>
         </div>
 
-        <!-- Right Floating Dock: Block Actions (Destroy, Replace, Clear, Close) (docked on right side of wallpaper) -->
-        <div id="tile-action-bar" class="hidden absolute right-4 top-1/2 -translate-y-1/2 z-40 bg-slate-900/95 backdrop-blur-md text-white px-2.5 py-3 rounded-2xl shadow-2xl border border-slate-700/80 flex flex-col items-stretch gap-2 min-w-[130px]">
-          <div class="flex items-center justify-between pb-1 border-b border-slate-700/80 text-[10px] font-bold text-slate-300">
-            <span>Actions</span>
-            <!-- Close / Deselect Button -->
-            <button id="tile-action-close-btn" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors" title="Deselect block">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-          </div>
-
-          <!-- Action: Delete Block / Split into 1x1 Squares -->
-          <button id="tile-split-btn" class="px-2.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 text-[11px] font-bold transition-all flex items-center gap-1.5" title="Destroy block and split into smaller squares">
-            <svg class="w-3.5 h-3.5 flex-shrink-0 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            <span id="tile-split-btn-text" class="truncate">Destroy</span>
+        <!-- Move Controls -->
+        <div class="flex items-center gap-0.5 px-1 bg-slate-800/80 rounded-xl border border-slate-700/60" title="Move Block (Shift + Arrow Keys)">
+          <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-1">Move</span>
+          <button id="tile-move-left-btn" class="p-1.5 rounded-lg hover:bg-white/10 text-white hover:text-indigo-400 transition-all" title="Move Left (Shift + ←)">
+            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
           </button>
-
-          <!-- Action: Replace Photo -->
-          <button id="tile-replace-btn" class="px-2.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[11px] font-semibold transition-all flex items-center gap-1.5" title="Replace photo in this block">
-            <svg class="w-3.5 h-3.5 flex-shrink-0 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-            <span class="truncate">Replace Photo</span>
+          <button id="tile-move-up-btn" class="p-1.5 rounded-lg hover:bg-white/10 text-white hover:text-indigo-400 transition-all" title="Move Up (Shift + ↑)">
+            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
           </button>
-
-          <!-- Action: Clear Photo Only -->
-          <button id="tile-clear-btn" class="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold transition-all flex items-center gap-1.5" title="Clear photo from this block">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-            <span class="truncate">Clear Photo</span>
+          <button id="tile-move-down-btn" class="p-1.5 rounded-lg hover:bg-white/10 text-white hover:text-indigo-400 transition-all" title="Move Down (Shift + ↓)">
+            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <button id="tile-move-right-btn" class="p-1.5 rounded-lg hover:bg-white/10 text-white hover:text-indigo-400 transition-all" title="Move Right (Shift + →)">
+            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
           </button>
         </div>
 
+        <!-- Merge Controls -->
+        <div class="flex items-center gap-0.5 px-1 bg-slate-800/80 rounded-xl border border-slate-700/60" title="Merge Block (Alt + Arrow Keys)">
+          <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-1">Merge</span>
+          <button id="tile-merge-left-btn" class="px-2 py-1 rounded-lg hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-400 text-[10px] font-bold transition-all" title="Merge Left (Alt + ← or Shift + A)">
+            ← Left
+          </button>
+          <button id="tile-merge-down-btn" class="px-2 py-1 rounded-lg hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-400 text-[10px] font-bold transition-all" title="Merge Below (Alt + ↓ or Shift + S)">
+            ↓ Below
+          </button>
+          <button id="tile-merge-right-btn" class="px-2 py-1 rounded-lg hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-400 text-[10px] font-bold transition-all" title="Merge Right (Alt + → or Shift + D)">
+            → Right
+          </button>
+          <button id="tile-merge-up-btn" class="px-2 py-1 rounded-lg hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-400 text-[10px] font-bold transition-all" title="Merge Up (Alt + ↑ or Shift + W)">
+            ↑ Up
+          </button>
+          <button id="tile-merge-banner-btn" class="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 text-[10px] font-bold transition-all" title="Merge Full Banner (Alt + B or M)">
+            Banner
+          </button>
+        </div>
+
+        <!-- Split / Replace / Clear / Deselect -->
+        <div class="flex items-center gap-1 pl-1">
+          <button id="tile-split-btn" class="px-2.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 text-[10px] font-bold transition-all flex items-center gap-1" title="Split into smaller squares (Key: S or X)">
+            <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            <span id="tile-split-btn-text">Split</span>
+          </button>
+          <button id="tile-replace-btn" class="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[10px] font-semibold transition-all flex items-center gap-1" title="Replace Photo (Key: R)">
+            <svg class="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            <span>Replace</span>
+          </button>
+          <button id="tile-clear-btn" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-500/30 text-slate-300 hover:text-rose-300 text-[10px] font-semibold transition-all flex items-center gap-1" title="Clear Photo (Key: Del)">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            <span>Clear</span>
+          </button>
+          <button id="tile-action-close-btn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors ml-1" title="Deselect (Esc)">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
       </div>
 
     </main>
@@ -915,6 +885,148 @@
         <button id="confirm-export-btn" class="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           <span>Download Wallpaper</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Cheat Sheet Modal -->
+  <div id="shortcuts-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in fade-in zoom-in duration-150 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Keyboard Shortcuts</h3>
+            <p class="text-[10px] text-slate-400">Navigate, move, merge, and edit without touching the mouse</p>
+          </div>
+        </div>
+        <button id="close-shortcuts-modal" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Shortcuts Categories -->
+      <div class="space-y-4 text-xs">
+        <!-- History & Undo/Redo -->
+        <div>
+          <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">History & Actions</h4>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Undo Step</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">Ctrl + Z</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Redo Step</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">Ctrl + Y</kbd>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block Selection & Navigation -->
+        <div>
+          <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Navigation & Moving</h4>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Navigate Blocks</span>
+              <div class="flex items-center gap-1 font-mono font-bold text-[10px]">
+                <kbd class="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 shadow-sm">↑</kbd>
+                <kbd class="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 shadow-sm">↓</kbd>
+                <kbd class="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 shadow-sm">←</kbd>
+                <kbd class="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 shadow-sm">→</kbd>
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Move Selected Block</span>
+              <div class="flex items-center gap-1 font-mono font-bold text-[10px]">
+                <kbd class="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 shadow-sm">Shift</kbd>
+                <span>+</span>
+                <kbd class="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 shadow-sm">Arrows</kbd>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Merging & Splitting -->
+        <div>
+          <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Merge & Split Blocks</h4>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Merge Left</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">Alt + ←</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Merge Below</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">Alt + ↓</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Merge Right</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">Alt + →</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Merge Above</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">Alt + ↑</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Full Banner</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">M / Alt+B</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Split Block</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">S / X</kbd>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block & Studio Controls -->
+        <div>
+          <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Block & Studio Tools</h4>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Clear Photo</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">Delete</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Replace Photo</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">R</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Toggle Hero</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">H</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Shuffle Photos</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">Space</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Cycle Filters</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">F</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Toggle Bezel</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">B</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Sidebars</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">[ / ]</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-slate-700 font-medium">Export</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">E</kbd>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 col-span-2">
+              <span class="text-slate-700 font-medium">Deselect / Close</span>
+              <kbd class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-800 font-mono font-bold text-[10px] shadow-sm">Escape</kbd>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button id="ok-shortcuts-btn" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow transition-all">
+          Got it!
         </button>
       </div>
     </div>

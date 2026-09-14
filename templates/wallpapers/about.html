@@ -57,6 +57,84 @@
     </div>
   </div>
 
+  <!-- Keyboard-First Workflow & Shortcuts Architecture -->
+  <div class="p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div class="space-y-1">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+          <span>Studio Ergonomics</span>
+        </div>
+        <h3 class="text-base md:text-lg font-bold text-white">Keyboard-First Studio & Canvas Engine</h3>
+        <p class="text-xs text-slate-400">Complete hotkey-driven workflow eliminating clutter, hover buttons, and canvas resets.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-slate-400 font-mono">Press '?' in Studio</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+      <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+        <div class="font-bold text-slate-200">2D Spatial Navigation</div>
+        <p class="text-slate-400 text-[11px] leading-relaxed">
+          Use <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px]">Arrow Keys</kbd> to traverse tiles spatially across columns and rows without mouse clicks.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+        <div class="font-bold text-slate-200">Directional Merging</div>
+        <p class="text-slate-400 text-[11px] leading-relaxed">
+          <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px]">Alt + Arrows</kbd> merges tiles left, right, down, or up. Press <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px]">M</kbd> for banner rows.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+        <div class="font-bold text-slate-200">History: Undo & Redo</div>
+        <p class="text-slate-400 text-[11px] leading-relaxed">
+          Full state snapshots enable <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px]">Ctrl + Z</kbd> (Undo) and <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px]">Ctrl + Y</kbd> (Redo) on every layout modification.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+        <div class="font-bold text-slate-200">Splitting & Hot Swapping</div>
+        <p class="text-slate-400 text-[11px] leading-relaxed">
+          Split blocks instantly with <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px]">S</kbd>, cycle photos with <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px]">R</kbd>, and toggle heroes with <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px]">H</kbd>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tech Stack & Django Backend Overview -->
+  <div class="p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
+    <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+      <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-mono font-bold text-xs">
+        Py
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-slate-900">Django Backend Architecture</h3>
+        <p class="text-xs text-slate-500">Modular Django framework with SQLite ORM, REST APIs, and responsive templates</p>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+        <div class="font-bold text-slate-900">Django 5.x</div>
+        <p class="text-slate-500 text-[11px]">Robust Python MVC architecture and template engine.</p>
+      </div>
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+        <div class="font-bold text-slate-900">Dynamic Routing</div>
+        <p class="text-slate-500 text-[11px]">URL dispatcher for studio, landing pages, and REST endpoints.</p>
+      </div>
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+        <div class="font-bold text-slate-900">SQLite & ORM</div>
+        <p class="text-slate-500 text-[11px]">DevicePresets, LayoutPresets, and Saved Wallpaper Projects.</p>
+      </div>
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+        <div class="font-bold text-slate-900">Tailwind & Canvas</div>
+        <p class="text-slate-500 text-[11px]">Instant client-side canvas engine with 4K lossless export.</p>
+      </div>
+    </div>
+  </div>
   <!-- Creator & Contact Details Section -->
   <div class="rounded-3xl bg-gradient-to-br from-slate-900 to-slate-950 text-white p-8 md:p-10 shadow-xl relative overflow-hidden">
     <div class="relative z-10 space-y-6">

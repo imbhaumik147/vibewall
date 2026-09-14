@@ -701,13 +701,27 @@ export class WallpaperGridEngine {
       const neighbor = gridMap[slot.row] ? gridMap[slot.row][neighborCol] : null;
       if (neighbor && neighbor.spanCol) expandBy = neighbor.spanCol;
       targetC2 += expandBy;
-    } else if (direction === 'down') {
+    } else if (direction === 'left') {
+      if (slot.col <= 0) return null;
+      const neighborCol = slot.col - 1;
+      let expandBy = 1;
+      const neighbor = gridMap[slot.row] ? gridMap[slot.row][neighborCol] : null;
+      if (neighbor && neighbor.spanCol) expandBy = neighbor.spanCol;
+      targetC1 = Math.max(0, targetC1 - expandBy);
+    } else if (direction === 'down' || direction === 'below') {
       const neighborRow = slot.row + slot.spanRow;
       if (neighborRow >= this.rows) return null;
       let expandBy = 1;
       const neighbor = gridMap[neighborRow] ? gridMap[neighborRow][slot.col] : null;
       if (neighbor && neighbor.spanRow) expandBy = neighbor.spanRow;
       targetR2 += expandBy;
+    } else if (direction === 'up' || direction === 'above') {
+      if (slot.row <= 0) return null;
+      const neighborRow = slot.row - 1;
+      let expandBy = 1;
+      const neighbor = gridMap[neighborRow] ? gridMap[neighborRow][slot.col] : null;
+      if (neighbor && neighbor.spanRow) expandBy = neighbor.spanRow;
+      targetR1 = Math.max(0, targetR1 - expandBy);
     } else if (direction === 'banner') {
       targetC1 = 0;
       targetC2 = this.cols;
@@ -965,6 +979,105 @@ export class WallpaperGridEngine {
     return slot.index;
   }
 
+  getNeighborSlot(slotIndex, direction) {
+    slotIndex = parseInt(slotIndex, 10);
+    if (isNaN(slotIndex) || slotIndex < 0 || slotIndex >= this.slots.length) return null;
+    const current = this.slots[slotIndex];
+    if (!current) return null;
+
+    let bestSlot = null;
+    let bestDist = Infinity;
+
+    const curCenterR = current.row + current.spanRow / 2;
+    const curCenterC = current.col + current.spanCol / 2;
+
+    this.slots.forEach(slot => {
+      if (slot.index === current.index) return;
+      const centerR = slot.row + slot.spanRow / 2;
+      const centerC = slot.col + slot.spanCol / 2;
+
+      let isCandidate = false;
+      let primaryDist = 0;
+      let secondaryDist = 0;
+
+      if (direction === 'up' && (slot.row + slot.spanRow) <= current.row + 0.1) {
+        isCandidate = true;
+        primaryDist = current.row - (slot.row + slot.spanRow);
+        secondaryDist = Math.abs(curCenterC - centerC);
+      } else if (direction === 'down' && slot.row >= (current.row + current.spanRow) - 0.1) {
+        isCandidate = true;
+        primaryDist = slot.row - (current.row + current.spanRow);
+        secondaryDist = Math.abs(curCenterC - centerC);
+      } else if (direction === 'left' && (slot.col + slot.spanCol) <= current.col + 0.1) {
+        isCandidate = true;
+        primaryDist = current.col - (slot.col + slot.spanCol);
+        secondaryDist = Math.abs(curCenterR - centerR);
+      } else if (direction === 'right' && slot.col >= (current.col + current.spanCol) - 0.1) {
+        isCandidate = true;
+        primaryDist = slot.col - (current.col + current.spanCol);
+        secondaryDist = Math.abs(curCenterR - centerR);
+      }
+
+      if (isCandidate) {
+        const totalDist = primaryDist * 10 + secondaryDist;
+        if (totalDist < bestDist) {
+          bestDist = totalDist;
+          bestSlot = slot;
+        }
+      }
+    });
+
+    return bestSlot ? bestSlot.index : null;
+  }
+
+  getStateSnapshot() {
+    return {
+      slots: JSON.parse(JSON.stringify(this.slots)),
+      slotImages: [...this.slotImages],
+      slotShapes: { ...this.slotShapes },
+      imageShapes: { ...this.imageShapes },
+      cols: this.cols,
+      rows: this.rows,
+      gridDoubled: this.gridDoubled,
+      heroCount: this.heroCount,
+      heroSpan: this.heroSpan,
+      layoutMode: this.layoutMode,
+      tileShape: this.tileShape,
+      heroTileShape: this.heroTileShape,
+      backgroundColor: this.backgroundColor,
+      filterClass: this.filterClass,
+      gap: this.gap,
+      radius: this.radius,
+      padding: this.padding,
+      allowVertical: this.allowVertical,
+      allowHorizontal: this.allowHorizontal
+    };
+  }
+
+  restoreStateSnapshot(snapshot) {
+    if (!snapshot) return;
+    this.slots = JSON.parse(JSON.stringify(snapshot.slots));
+    this.slotImages = [...snapshot.slotImages];
+    this.slotShapes = { ...(snapshot.slotShapes || {}) };
+    this.imageShapes = { ...(snapshot.imageShapes || {}) };
+    this.cols = snapshot.cols;
+    this.rows = snapshot.rows;
+    this.gridDoubled = !!snapshot.gridDoubled;
+    this.heroCount = snapshot.heroCount;
+    this.heroSpan = snapshot.heroSpan;
+    this.layoutMode = snapshot.layoutMode;
+    this.tileShape = snapshot.tileShape;
+    this.heroTileShape = snapshot.heroTileShape;
+    this.backgroundColor = snapshot.backgroundColor;
+    this.filterClass = snapshot.filterClass;
+    this.gap = snapshot.gap;
+    this.radius = snapshot.radius;
+    this.padding = snapshot.padding;
+    this.allowVertical = !!snapshot.allowVertical;
+    this.allowHorizontal = !!snapshot.allowHorizontal;
+    this.render();
+  }
+
   isColorDark(hex) {
     if (!hex || !hex.startsWith('#')) return true;
     const c = hex.substring(1);
@@ -1023,22 +1136,7 @@ export class WallpaperGridEngine {
         img.draggable = false;
         tile.appendChild(img);
 
-        // Hover replace overlay with SVG icon
-        const overlay = document.createElement('div');
-        overlay.className = 'tile-hover-overlay';
-        overlay.innerHTML = `
-          <button class="replace-btn bg-slate-900/90 hover:bg-slate-900 text-white p-1.5 rounded-lg text-xs shadow transition-transform hover:scale-110" title="Replace Cover">
-            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-          </button>
-        `;
-        tile.appendChild(overlay);
-
-        overlay.querySelector('.replace-btn').addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.onSlotClick(slot.index);
-        });
-
-        // Attach direct click event to all tiles (Heroes, 1x2 Vertical, 2x1 Horizontal, 1x1 Standard)
+        // Direct click event to select tile without any buttons over the wallpaper
         tile.addEventListener('click', () => {
           this.onSlotClick(slot.index);
         });
