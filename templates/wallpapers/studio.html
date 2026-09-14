@@ -677,6 +677,65 @@
       <!-- Canvas Viewport: Completely clean, no buttons floating above wallpaper -->
       <div id="canvas-wrapper" class="canvas-viewport flex-1 flex items-center justify-center p-3 overflow-hidden relative">
         
+        <!-- Left Floating Dock: Move & Merge Controls (docked on left side of canvas) -->
+        <div id="tile-move-bar" class="hidden absolute left-4 top-1/2 -translate-y-1/2 z-40 bg-slate-900/95 backdrop-blur-md text-white px-2.5 py-3 rounded-2xl shadow-2xl border border-slate-700/80 flex flex-col items-center gap-2.5 select-none w-[116px]">
+          <!-- Block Badge Indicator -->
+          <div class="flex flex-col items-center gap-1 pb-2 border-b border-slate-700/80 w-full text-center">
+            <div id="tile-action-icon" class="w-7 h-7 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px]">
+              #1
+            </div>
+            <div id="tile-action-title" class="text-[10px] font-bold text-white max-w-[95px] truncate">Block #1</div>
+            <div id="tile-action-subtitle" class="text-[8px] text-slate-400 font-mono">Row 1, Col 1</div>
+          </div>
+
+          <!-- Move Up/Down/Left/Right Controls -->
+          <div class="flex flex-col items-center gap-1 p-1 bg-slate-800/80 rounded-xl border border-slate-700/60 w-full">
+            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider text-center">Move</span>
+            <div class="grid grid-cols-3 gap-1 place-items-center">
+              <div></div>
+              <button id="tile-move-up-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Up (Shift + ↑)">
+                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+              </button>
+              <div></div>
+              <button id="tile-move-left-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Left (Shift + ←)">
+                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+              </button>
+              <div class="w-2.5 h-2.5 rounded-full bg-indigo-500/30"></div>
+              <button id="tile-move-right-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Right (Shift + →)">
+                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+              </button>
+              <div></div>
+              <button id="tile-move-down-btn" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/20 text-white hover:text-indigo-400 transition-all hover:scale-110 active:scale-95" title="Move Block Down (Shift + ↓)">
+                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <div></div>
+            </div>
+          </div>
+
+          <!-- Merge Controls -->
+          <div class="flex flex-col items-center gap-1 p-1 bg-slate-800/80 rounded-xl border border-slate-700/60 w-full">
+            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider text-center">Merge</span>
+            <div class="grid grid-cols-2 gap-1 w-full">
+              <button id="tile-merge-left-btn" class="p-1 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-105 active:scale-95 text-[9px] font-bold text-center" title="Merge Left (Alt + ← or Shift + A)">
+                ← Left
+              </button>
+              <button id="tile-merge-right-btn" class="p-1 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-105 active:scale-95 text-[9px] font-bold text-center" title="Merge Right (Alt + → or Shift + D)">
+                Right →
+              </button>
+              <button id="tile-merge-up-btn" class="p-1 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-105 active:scale-95 text-[9px] font-bold text-center" title="Merge Up (Alt + ↑ or Shift + W)">
+                ↑ Up
+              </button>
+              <button id="tile-merge-down-btn" class="p-1 rounded-lg bg-white/5 hover:bg-emerald-500/30 text-white hover:text-emerald-400 transition-all hover:scale-105 active:scale-95 text-[9px] font-bold text-center" title="Merge Below (Alt + ↓ or Shift + S)">
+                ↓ Down
+              </button>
+            </div>
+            <button id="tile-merge-banner-btn" class="w-full p-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 transition-all hover:scale-105 active:scale-95 text-[9px] font-bold flex items-center justify-center gap-1" title="Merge into Full Width Banner (M or Alt+B)">
+              <svg class="w-3 h-3 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="1.5"/></svg>
+              <span>Banner</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Device Frame Mockup Container -->
         <div id="device-frame" class="device-frame-phone relative flex items-center justify-center">
           
@@ -690,76 +749,41 @@
 
         </div>
 
-      </div>
-
-      <!-- Dedicated Non-Overlapping Bottom Action Dock for Selected Block -->
-      <div id="active-block-dock" class="hidden absolute bottom-3 left-1/2 -translate-x-1/2 z-30 bg-slate-900/95 backdrop-blur-md text-white px-3 py-2 rounded-2xl shadow-2xl border border-slate-700/80 flex items-center gap-2 max-w-[95vw] overflow-x-auto select-none animate-in fade-in slide-in-from-bottom-2 duration-150">
-        <!-- Block Badge -->
-        <div class="flex items-center gap-2 pr-2 border-r border-slate-700/80">
-          <div id="tile-action-icon" class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px]">
-            #1
+        <!-- Right Floating Dock: Block Actions (docked on right side of canvas) -->
+        <div id="tile-action-bar" class="hidden absolute right-4 top-1/2 -translate-y-1/2 z-40 bg-slate-900/95 backdrop-blur-md text-white px-2.5 py-3 rounded-2xl shadow-2xl border border-slate-700/80 flex flex-col items-stretch gap-2 min-w-[135px] max-w-[155px] select-none">
+          <div class="flex items-center justify-between pb-1 border-b border-slate-700/80 text-[10px] font-bold text-slate-300">
+            <span class="uppercase tracking-wider">Actions</span>
+            <!-- Close / Deselect Button -->
+            <button id="tile-action-close-btn" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors" title="Deselect block (Esc)">
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
           </div>
-          <div class="min-w-0">
-            <div id="tile-action-title" class="text-[11px] font-bold text-white whitespace-nowrap">Block #1</div>
-            <div id="tile-action-subtitle" class="text-[9px] text-slate-400 font-mono whitespace-nowrap">Row 1, Col 1</div>
-          </div>
-        </div>
 
-        <!-- Move Controls -->
-        <div class="flex items-center gap-0.5 px-1 bg-slate-800/80 rounded-xl border border-slate-700/60" title="Move Block (Shift + Arrow Keys)">
-          <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-1">Move</span>
-          <button id="tile-move-left-btn" class="p-1.5 rounded-lg hover:bg-white/10 text-white hover:text-indigo-400 transition-all" title="Move Left (Shift + ←)">
-            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          <!-- Action: Destroy Block / Split into 1x1 Squares -->
+          <button id="tile-split-btn" class="px-2.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 text-[11px] font-bold transition-all flex items-center gap-1.5" title="Destroy block and split into smaller squares (Key: S or X)">
+            <svg class="w-3.5 h-3.5 flex-shrink-0 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            <span id="tile-split-btn-text" class="truncate">Destroy / Split</span>
           </button>
-          <button id="tile-move-up-btn" class="p-1.5 rounded-lg hover:bg-white/10 text-white hover:text-indigo-400 transition-all" title="Move Up (Shift + ↑)">
-            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
-          </button>
-          <button id="tile-move-down-btn" class="p-1.5 rounded-lg hover:bg-white/10 text-white hover:text-indigo-400 transition-all" title="Move Down (Shift + ↓)">
-            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <button id="tile-move-right-btn" class="p-1.5 rounded-lg hover:bg-white/10 text-white hover:text-indigo-400 transition-all" title="Move Right (Shift + →)">
-            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-          </button>
-        </div>
 
-        <!-- Merge Controls -->
-        <div class="flex items-center gap-0.5 px-1 bg-slate-800/80 rounded-xl border border-slate-700/60" title="Merge Block (Alt + Arrow Keys)">
-          <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-1">Merge</span>
-          <button id="tile-merge-left-btn" class="px-2 py-1 rounded-lg hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-400 text-[10px] font-bold transition-all" title="Merge Left (Alt + ← or Shift + A)">
-            ← Left
+          <!-- Action: Replace Photo -->
+          <button id="tile-replace-btn" class="px-2.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[11px] font-semibold transition-all flex items-center gap-1.5" title="Replace photo in this block (Key: R)">
+            <svg class="w-3.5 h-3.5 flex-shrink-0 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            <span class="truncate">Replace Photo</span>
           </button>
-          <button id="tile-merge-down-btn" class="px-2 py-1 rounded-lg hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-400 text-[10px] font-bold transition-all" title="Merge Below (Alt + ↓ or Shift + S)">
-            ↓ Below
+
+          <!-- Action: Clear Photo Only -->
+          <button id="tile-clear-btn" class="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-500/30 text-slate-300 hover:text-rose-300 text-[11px] font-semibold transition-all flex items-center gap-1.5" title="Clear photo from this block (Key: Del)">
+            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            <span class="truncate">Clear Photo</span>
           </button>
-          <button id="tile-merge-right-btn" class="px-2 py-1 rounded-lg hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-400 text-[10px] font-bold transition-all" title="Merge Right (Alt + → or Shift + D)">
-            → Right
-          </button>
-          <button id="tile-merge-up-btn" class="px-2 py-1 rounded-lg hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-400 text-[10px] font-bold transition-all" title="Merge Up (Alt + ↑ or Shift + W)">
-            ↑ Up
-          </button>
-          <button id="tile-merge-banner-btn" class="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 text-[10px] font-bold transition-all" title="Merge Full Banner (Alt + B or M)">
-            Banner
+
+          <!-- Action: Hero Sizing Toggle -->
+          <button id="tile-hero-btn" class="px-2.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[11px] font-semibold transition-all flex items-center gap-1.5" title="Toggle Hero sizing (Key: H)">
+            <svg class="w-3.5 h-3.5 flex-shrink-0 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span class="truncate">Toggle Hero</span>
           </button>
         </div>
 
-        <!-- Split / Replace / Clear / Deselect -->
-        <div class="flex items-center gap-1 pl-1">
-          <button id="tile-split-btn" class="px-2.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 text-[10px] font-bold transition-all flex items-center gap-1" title="Split into smaller squares (Key: S or X)">
-            <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            <span id="tile-split-btn-text">Split</span>
-          </button>
-          <button id="tile-replace-btn" class="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[10px] font-semibold transition-all flex items-center gap-1" title="Replace Photo (Key: R)">
-            <svg class="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-            <span>Replace</span>
-          </button>
-          <button id="tile-clear-btn" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-500/30 text-slate-300 hover:text-rose-300 text-[10px] font-semibold transition-all flex items-center gap-1" title="Clear Photo (Key: Del)">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-            <span>Clear</span>
-          </button>
-          <button id="tile-action-close-btn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors ml-1" title="Deselect (Esc)">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-          </button>
-        </div>
       </div>
 
     </main>

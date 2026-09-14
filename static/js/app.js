@@ -246,10 +246,9 @@ class WallpaperApp {
       exportPreviewCanvas: document.getElementById('export-preview-canvas'),
       exportResInfo: document.getElementById('export-res-info'),
 
-      // Non-Overlapping Bottom Block Inspector & Action Bar
-      activeBlockDock: document.getElementById('active-block-dock'),
-      tileActionBar: document.getElementById('active-block-dock'),
-      tileMoveBar: null,
+      // Floating Block Inspector & Action Bars (Left Move/Merge Dock, Right Action Dock)
+      tileMoveBar: document.getElementById('tile-move-bar'),
+      tileActionBar: document.getElementById('tile-action-bar'),
       tileActionIcon: document.getElementById('tile-action-icon'),
       tileActionTitle: document.getElementById('tile-action-title'),
       tileActionSubtitle: document.getElementById('tile-action-subtitle'),
@@ -266,6 +265,7 @@ class WallpaperApp {
       tileSplitBtnText: document.getElementById('tile-split-btn-text'),
       tileReplaceBtn: document.getElementById('tile-replace-btn'),
       tileClearBtn: document.getElementById('tile-clear-btn'),
+      tileHeroBtn: document.getElementById('tile-hero-btn'),
       tileActionCloseBtn: document.getElementById('tile-action-close-btn'),
 
       // Mobile Backdrop
@@ -350,12 +350,32 @@ class WallpaperApp {
     const frame = this.dom.deviceFrame;
     if (!wrapper || !frame) return;
 
-    // Reserve bottom space if block dock is visible so it NEVER overlaps the wallpaper
-    const isDockVisible = this.dom.activeBlockDock && !this.dom.activeBlockDock.classList.contains('hidden');
-    const bottomReserve = isDockVisible ? 68 : 32;
+    // Both left dock (Move & Merge, ~116px wide) and right dock (Actions, ~145px wide)
+    // are docked on the left and right sides of the canvas viewport.
+    // They must NEVER touch, overlap, or come above the wallpaper canvas.
+    const leftDockVisible = this.dom.tileMoveBar && !this.dom.tileMoveBar.classList.contains('hidden');
+    const rightDockVisible = this.dom.tileActionBar && !this.dom.tileActionBar.classList.contains('hidden');
 
-    const availW = Math.max(120, wrapper.clientWidth - 40);
-    const availH = Math.max(120, wrapper.clientHeight - (20 + bottomReserve));
+    let horizontalReserve = 48; // default padding 24px each side
+    let verticalReserve = 40;   // default padding 20px top/bottom
+
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      if (leftDockVisible || rightDockVisible) {
+        verticalReserve = 140; // bottom space for mobile docks
+      }
+    } else {
+      // On desktop, docks are on left and right sides.
+      // Symmetrical margin keeps the wallpaper centered and completely clear of both docks:
+      // Left dock: 16px offset + 116px width + 24px gap = 156px
+      // Right dock: 16px offset + 145px width + 24px gap = 185px
+      if (leftDockVisible || rightDockVisible) {
+        horizontalReserve = 185 * 2; // 370px total -> 185px clear margin on each side
+      }
+    }
+
+    const availW = Math.max(100, wrapper.clientWidth - horizontalReserve);
+    const availH = Math.max(100, wrapper.clientHeight - verticalReserve);
     const aspect = this.canvasWidth / this.canvasHeight;
 
     let targetW, targetH;
@@ -564,7 +584,7 @@ class WallpaperApp {
     }
 
     if (this.dom.tileActionBar) this.dom.tileActionBar.classList.remove('hidden');
-    if (this.dom.activeBlockDock) this.dom.activeBlockDock.classList.remove('hidden');
+    if (this.dom.tileMoveBar) this.dom.tileMoveBar.classList.remove('hidden');
     this.fitCanvasToViewport();
 
     // Highlight selected tile on canvas (Clean glowing ring without buttons over photo)
@@ -773,9 +793,6 @@ class WallpaperApp {
   hideTileActionBar() {
     if (this.dom.tileActionBar) {
       this.dom.tileActionBar.classList.add('hidden');
-    }
-    if (this.dom.activeBlockDock) {
-      this.dom.activeBlockDock.classList.add('hidden');
     }
     if (this.dom.tileMoveBar) {
       this.dom.tileMoveBar.classList.add('hidden');
@@ -1044,6 +1061,12 @@ class WallpaperApp {
     if (this.dom.tileClearBtn) {
       this.dom.tileClearBtn.addEventListener('click', () => {
         this.clearSelectedBlockPhoto();
+      });
+    }
+
+    if (this.dom.tileHeroBtn) {
+      this.dom.tileHeroBtn.addEventListener('click', () => {
+        this.toggleSelectedBlockHero();
       });
     }
 
