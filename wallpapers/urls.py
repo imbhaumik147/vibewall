@@ -5,6 +5,7 @@ urlpatterns = [
     # Pages
     path('', views.home_view, name='home'),
     path('studio/', views.studio_view, name='studio'),
+    path('extension/', views.extension_view, name='extension'),
     path('about/', views.about_view, name='about'),
 
     # REST APIs

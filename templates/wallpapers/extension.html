@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}VibeWall Chrome Extension - Custom Wallpaper & New Tab Dashboard{% endblock %}
+
+{% block content %}
+<main class="flex-1 max-w-6xl mx-auto w-full px-4 md:px-8 py-10 md:py-14 space-y-14">
+
+  <!-- Hero Banner -->
+  <section class="relative rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-8 sm:p-12 shadow-2xl border border-slate-800 overflow-hidden">
+    <!-- Ambient Blur Orbs -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-3xl space-y-6">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-300 text-xs font-bold shadow-inner">
+        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
+        <span>Chrome Extension • Manifest V3 • Zero Trackers</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-[1.12]">
+        Transform Your New Tab Into An <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-amber-200">Aesthetic Dashboard</span>
+      </h1>
+
+      <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+        <strong>VibeWall Chrome Extension</strong> replaces boring default start pages with a high-performance, frosted glassmorphism productivity suite featuring custom full-screen wallpaper auto-fitting, goal tracking, floating sticky notes, horology clock typography, live weather, and interactive task cards.
+      </p>
+
+      <div class="flex flex-wrap items-center gap-3 pt-2">
+        <a href="{{ github_extension_repo_url|default:'https://github.com/imbhaumik147/vibewallExtension' }}" target="_blank" rel="noopener noreferrer" class="px-6 py-3.5 rounded-2xl bg-white text-slate-900 font-extrabold text-xs sm:text-sm hover:bg-slate-100 transition-all shadow-lg flex items-center gap-2 active:scale-95 group">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>Get on GitHub</span>
+          <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+        <a href="#install-guide" class="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2">
+          <svg class="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span>Installation Guide</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Live Preview Component (Horology Clocks & Goals) -->
+  <section class="bg-slate-900 rounded-3xl border border-slate-800 p-6 sm:p-8 space-y-6 text-white shadow-xl">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <div class="inline-flex items-center gap-1.5 text-indigo-400 font-bold text-xs uppercase tracking-wider mb-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          <span>Live Extension Widget Playground</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Try Extension Features Live</h2>
+      </div>
+      <span class="text-xs text-slate-400 font-mono">Interactive Demo</span>
+    </div>
+
+    <!-- Clock Selector Buttons -->
+    <div class="space-y-2">
+      <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Clock Typography Preset:</label>
+      <div class="flex flex-wrap gap-2" id="demo-clock-controls">
+        <button data-style="minimal" class="demo-clock-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold transition-all">1. Minimalist Clean</button>
+        <button data-style="bold" class="demo-clock-btn px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all">2. Bold Brutalist</button>
+        <button data-style="editorial" class="demo-clock-btn px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all">3. Elegant Editorial</button>
+        <button data-style="pill" class="demo-clock-btn px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all">4. Glass Pill</button>
+        <button data-style="split" class="demo-clock-btn px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all">5. Split Stack</button>
+        <button data-style="vintage" class="demo-clock-btn px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all">6. Vintage Dial 🕰️</button>
+      </div>
+    </div>
+
+    <!-- Live Canvas Box -->
+    <div class="relative min-h-[300px] rounded-2xl bg-gradient-to-br from-indigo-950/80 via-slate-900 to-purple-950/80 border border-slate-800 p-6 flex flex-col items-center justify-center text-center overflow-hidden group">
+      <!-- Simulated Wallpaper Overlay -->
+      <div class="absolute inset-0 bg-black/30 backdrop-blur-[2px] pointer-events-none"></div>
+
+      <!-- Clock Display -->
+      <div id="demo-clock-display" class="relative z-10 my-6 transition-all duration-300">
+        <!-- Default: Minimalist Clean -->
+        <div class="space-y-1">
+          <div id="demo-time-text" class="text-5xl sm:text-7xl font-light tracking-tight font-sans text-white">10:42 PM</div>
+          <div id="demo-date-text" class="text-xs sm:text-sm font-medium text-indigo-200 tracking-wider">Wednesday, September 23</div>
+        </div>
+      </div>
+
+      <!-- Floating Goal Card Demo -->
+      <div class="relative z-10 w-full max-w-sm bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl shadow-xl text-left space-y-3">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-extrabold text-amber-300 flex items-center gap-1.5">
+            🎯 Goal Card Widget
+          </span>
+          <span id="demo-goal-stats" class="font-mono text-slate-300 text-[11px]">50 / 100 (50%)</span>
+        </div>
+        <div class="text-sm font-bold text-white">Review 100 Aesthetic Wallpapers</div>
+        <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/10">
+          <div id="demo-goal-bar" class="bg-gradient-to-r from-amber-400 to-amber-500 h-full rounded-full transition-all duration-300" style="width: 50%;"></div>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button id="demo-goal-minus" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold transition-all">-1</button>
+          <button id="demo-goal-plus" class="px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-900 font-mono text-xs font-bold transition-all">+1 Progress</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deep Feature Breakdown Grid -->
+  <section class="space-y-8">
+    <div class="text-center max-w-2xl mx-auto space-y-2">
+      <div class="inline-flex items-center gap-1.5 text-indigo-600 font-bold text-xs uppercase tracking-wider">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+        <span>Complete Capabilities</span>
+      </div>
+      <h2 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">Features Built For Your New Tab</h2>
+      <p class="text-xs sm:text-sm text-slate-500">Every tool is crafted with vanilla HTML5, CSS3 glassmorphism, and instant local storage performance.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Feature 1: Wallpaper & Auto-Fit Engine -->
+      <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all space-y-4 flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+            🖼️
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Wallpaper Auto-Fit & Shading Engine</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Scales high-res imagery using <strong>Auto-Fit (`100% 100%`)</strong> to guarantee full artwork visibility without top or bottom cropping. Includes cover fill, contain, overlay shading (0-90%), and real-time blur adjustments.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-1.5 pt-2">
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">Auto-Fit No Clip</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">Custom Uploads</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">Blur Slider</span>
+        </div>
+      </div>
+
+      <!-- Feature 2: Goal Tracker & Floating Cards -->
+      <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all space-y-4 flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+            🎯
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Goal Tracker & Standalone Floating Cards</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Create numerical targets with live progress ratios (`50 / 100 Completed`), gradient progress bars, instant `+1`/`-1` increment controls, and float any goal as an independent draggable desktop card.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-1.5 pt-2">
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">Progress Ratios</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">Draggable Cards</span>
+        </div>
+      </div>
+
+      <!-- Feature 3: Task Due Dates & Priority Cards -->
+      <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all space-y-4 flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
+            📝
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Task Due Dates & Priority Badges</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Manage deadlines with dynamic badges (🚨 <strong>Overdue</strong>, ⚡ <strong>Due Today</strong>, 📅 <strong>Due Tomorrow</strong>). Assign High, Medium, or Low priority badges and pop out floating task widgets.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-1.5 pt-2">
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">Overdue Alerts</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">Priority Badges</span>
+        </div>
+      </div>
+
+      <!-- Feature 4: Floating Sticky Notes & Scratchpad -->
+      <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all space-y-4 flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+            📐
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Multiple Floating Sticky Notes</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Click `+ Note` to spawn draggable floating note cards anywhere on your wallpaper. Auto-saving scratchpad with real-time word and character counters (`0w · 0c`) and drag-to-resize handles.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-1.5 pt-2">
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">Word Count</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">Multiple Notes</span>
+        </div>
+      </div>
+
+      <!-- Feature 5: 6 Horology Clock Styles -->
+      <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all space-y-4 flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+            ⏰
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">6 Horology Clock Typography Styles</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Switch between 6 horology clock designs including <strong>Vintage Round Dial 🕰️</strong> (Roman numerals, rotating hour/minute/second hands, date subdial), Minimal Clean, Brutalist, Editorial, Glass Pill, and Split Stack.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-1.5 pt-2">
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Analog Watch Dial</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">12h/24h Formats</span>
+        </div>
+      </div>
+
+      <!-- Feature 6: Live Worldwide Weather -->
+      <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all space-y-4 flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="w-10 h-10 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold">
+            🌤️
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Worldwide Live Weather Forecast</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Real-time atmospheric conditions powered by Open-Meteo. Type any global city (*Tokyo, London, New York, Paris*) with automatic geocoding and °C / °F switching.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-1.5 pt-2">
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">City Lookup</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">°C / °F Toggle</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Installation & Setup Guide Section -->
+  <section id="install-guide" class="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200 shadow-md space-y-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <div>
+        <div class="inline-flex items-center gap-1.5 text-indigo-600 font-bold text-xs uppercase tracking-wider mb-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span>Developer & Local Setup</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">How To Install VibeWall Extension</h2>
+      </div>
+      <a href="{{ github_extension_repo_url|default:'https://github.com/imbhaumik147/vibewallExtension' }}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-2 transition-all">
+        <span>View Repository on GitHub</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </a>
+    </div>
+
+    <!-- Step-by-Step Installation Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+      <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 relative">
+        <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white font-mono font-bold text-xs flex items-center justify-center">1</div>
+        <h3 class="text-sm font-bold text-slate-900">Clone / Download</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Clone repository or download ZIP from GitHub: <br>
+          <code class="text-[10px] bg-slate-200 text-slate-800 px-1.5 py-0.5 rounded font-mono">git clone https://github.com/imbhaumik147/vibewallExtension.git</code>
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 relative">
+        <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white font-mono font-bold text-xs flex items-center justify-center">2</div>
+        <h3 class="text-sm font-bold text-slate-900">Open Extensions</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          In Google Chrome or any Chromium browser, navigate to <code class="text-[10px] bg-slate-200 text-slate-800 px-1.5 py-0.5 rounded font-mono">chrome://extensions</code> in your address bar.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 relative">
+        <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white font-mono font-bold text-xs flex items-center justify-center">3</div>
+        <h3 class="text-sm font-bold text-slate-900">Enable Developer Mode</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Toggle the <strong>Developer mode</strong> switch in the top-right corner of the Extensions page.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 relative">
+        <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white font-mono font-bold text-xs flex items-center justify-center">4</div>
+        <h3 class="text-sm font-bold text-slate-900">Load Unpacked</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Click <strong>Load unpacked</strong> button and select the root folder of the extension directory. Open a New Tab to enjoy!
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Interactive Live Widget Demo Script
+  (function() {
+    var clockBtns = document.querySelectorAll('.demo-clock-btn');
+    var clockDisplay = document.getElementById('demo-clock-display');
+    var timeText = document.getElementById('demo-time-text');
+    var dateText = document.getElementById('demo-date-text');
+
+    var goalPlus = document.getElementById('demo-goal-plus');
+    var goalMinus = document.getElementById('demo-goal-minus');
+    var goalBar = document.getElementById('demo-goal-bar');
+    var goalStats = document.getElementById('demo-goal-stats');
+
+    var currentProgress = 50;
+    var targetGoal = 100;
+
+    function updateGoalUI() {
+      var percent = Math.min(100, Math.max(0, Math.round((currentProgress / targetGoal) * 100)));
+      if (goalBar) goalBar.style.width = percent + '%';
+      if (goalStats) goalStats.textContent = currentProgress + ' / ' + targetGoal + ' (' + percent + '%)';
+    }
+
+    if (goalPlus) {
+      goalPlus.addEventListener('click', function() {
+        if (currentProgress < targetGoal) {
+          currentProgress += 5;
+          updateGoalUI();
+        }
+      });
+    }
+
+    if (goalMinus) {
+      goalMinus.addEventListener('click', function() {
+        if (currentProgress > 0) {
+          currentProgress -= 5;
+          updateGoalUI();
+        }
+      });
+    }
+
+    // Clock Style Switcher
+    clockBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var style = this.getAttribute('data-style');
+
+        clockBtns.forEach(function(b) {
+          b.classList.remove('bg-indigo-600', 'text-white');
+          b.classList.add('bg-slate-800', 'text-slate-300');
+        });
+        this.classList.remove('bg-slate-800', 'text-slate-300');
+        this.classList.add('bg-indigo-600', 'text-white');
+
+        if (!clockDisplay) return;
+
+        if (style === 'minimal') {
+          clockDisplay.innerHTML = '<div class="space-y-1">' +
+            '<div class="text-5xl sm:text-7xl font-light tracking-tight font-sans text-white">10:42 PM</div>' +
+            '<div class="text-xs sm:text-sm font-medium text-indigo-200 tracking-wider">Wednesday, September 23</div>' +
+          '</div>';
+        } else if (style === 'bold') {
+          clockDisplay.innerHTML = '<div class="space-y-1 text-center">' +
+            '<div class="text-6xl sm:text-8xl font-black tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400">10:42</div>' +
+            '<div class="text-xs font-black tracking-widest uppercase text-amber-400">23 SEP • WEDNESDAY</div>' +
+          '</div>';
+        } else if (style === 'editorial') {
+          clockDisplay.innerHTML = '<div class="space-y-1 italic font-serif">' +
+            '<div class="text-5xl sm:text-7xl font-extralight text-white">10:42 <span class="text-amber-300 text-2xl font-sans not-italic font-bold">PM</span></div>' +
+            '<div class="text-xs sm:text-sm text-slate-300 tracking-widest font-sans uppercase not-italic">Wednesday — Sep 23</div>' +
+          '</div>';
+        } else if (style === 'pill') {
+          clockDisplay.innerHTML = '<div class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg text-white">' +
+            '<span class="text-2xl font-bold font-mono">10:42:00</span>' +
+            '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>' +
+            '<span class="text-xs font-semibold text-slate-300">Wed, Sep 23</span>' +
+          '</div>';
+        } else if (style === 'split') {
+          clockDisplay.innerHTML = '<div class="flex items-center justify-center gap-2 font-mono font-black text-4xl sm:text-6xl text-white">' +
+            '<span class="px-4 py-2 rounded-2xl bg-white/10 border border-white/10">10</span>' +
+            '<span class="text-indigo-400 animate-pulse">:</span>' +
+            '<span class="px-4 py-2 rounded-2xl bg-white/10 border border-white/10">42</span>' +
+          '</div>';
+        } else if (style === 'vintage') {
+          clockDisplay.innerHTML = '<div class="w-32 h-32 rounded-full border-4 border-amber-300/40 bg-gradient-to-b from-slate-900 to-slate-950 flex flex-col items-center justify-center relative shadow-2xl">' +
+            '<div class="text-amber-300 font-serif text-xs font-bold tracking-widest">XII</div>' +
+            '<div class="my-auto font-black text-sm text-white font-mono">10:42 PM</div>' +
+            '<div class="text-amber-300 font-serif text-[10px] font-bold">VI</div>' +
+          '</div>';
+        }
+      });
+    });
+  })();
+</script>
+{% endblock %}

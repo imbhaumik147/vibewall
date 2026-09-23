@@ -90,6 +90,7 @@ DEFAULT_LAYOUTS = [
 ]
 
 GITHUB_REPO_URL = "https://github.com/imbhaumik147/vibewall"
+GITHUB_EXTENSION_REPO_URL = "https://github.com/imbhaumik147/vibewallExtension"
 GITHUB_PROFILE_URL = "https://github.com/imbhaumik147"
 
 
@@ -134,6 +135,7 @@ def home_view(request):
         'devices': devices,
         'layouts': layouts,
         'github_repo_url': GITHUB_REPO_URL,
+        'github_extension_repo_url': GITHUB_EXTENSION_REPO_URL,
         'github_profile_url': GITHUB_PROFILE_URL,
         'active_page': 'home',
     }
@@ -153,6 +155,7 @@ def studio_view(request):
         'devices': devices,
         'layouts': layouts,
         'github_repo_url': GITHUB_REPO_URL,
+        'github_extension_repo_url': GITHUB_EXTENSION_REPO_URL,
         'github_profile_url': GITHUB_PROFILE_URL,
         'active_page': 'studio',
     }
@@ -163,10 +166,22 @@ def about_view(request):
     """Render the About, Documentation, and Creator contact page."""
     context = {
         'github_repo_url': GITHUB_REPO_URL,
+        'github_extension_repo_url': GITHUB_EXTENSION_REPO_URL,
         'github_profile_url': GITHUB_PROFILE_URL,
         'active_page': 'about',
     }
     return render(request, 'wallpapers/about.html', context)
+
+
+def extension_view(request):
+    """Render the Chrome Extension feature showcase & documentation page."""
+    context = {
+        'github_repo_url': GITHUB_REPO_URL,
+        'github_extension_repo_url': GITHUB_EXTENSION_REPO_URL,
+        'github_profile_url': GITHUB_PROFILE_URL,
+        'active_page': 'extension',
+    }
+    return render(request, 'wallpapers/extension.html', context)
 
 
 # ==============================================================================
